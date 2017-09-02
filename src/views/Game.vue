@@ -13,16 +13,32 @@
 
     </md-input-container>
 
+    <bc-list-moves :moves="moves"></bc-list-moves>
+
   </div>
 </template>
 
 <script>
+  import BcListMoves from '../components/BcListMoves.vue'
+
   export default {
+    components: {BcListMoves},
     name: 'game',
     data () {
       return {
         currentMove: '',
-        moves: []
+        moves: [
+          {
+            value: '1234',
+            bulls: 2,
+            cows: 1
+          },
+          {
+            value: '5678',
+            bulls: 2,
+            cows: 1
+          }
+        ]
       }
     },
     created () {
