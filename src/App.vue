@@ -13,7 +13,7 @@
     <!-- Views -->
     <router-view></router-view>
 
-    <md-sidenav class="md-left" ref="leftSidenav" @open="open('Left')" @close="close('Left')">
+    <md-sidenav class="md-left" ref="leftSidenav" @open="openSidenav()" @close="closeSidenav()">
 
       <md-toolbar class="md-medium">
 
@@ -35,22 +35,37 @@
 
     </md-sidenav>
 
+    <md-snackbar md-position="bottom center" md-duration="2000" ref="snackbar">
+      <span>{{message}}</span>
+    </md-snackbar>
+
   </div>
 
 </template>
 
 <script>
+  import eventBus from './events'
+
   export default {
     name: 'app',
+    data () {
+      return {
+        message: ''
+      }
+    },
+    created () {
+      eventBus.$on('messageApp', (msg) => {
+        this.message = msg
+        this.$refs.snackbar.open()
+      })
+    },
     methods: {
       toggleLeftSidenav () {
         this.$refs.leftSidenav.toggle()
       },
-      open (ref) {
-        console.log('Opened: ' + ref)
+      openSidenav () {
       },
-      close (ref) {
-        console.log('Closed: ' + ref)
+      closeSidenv () {
       }
     }
   }
@@ -61,7 +76,6 @@
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
     color: #2c3e50;
   }
 </style>
