@@ -5,9 +5,9 @@
 
       <label>Enter your move</label>
 
-      <md-input v-model="currentMove" maxlength="4"></md-input>
+      <md-input v-model="currentMove" maxlength="4" min @keyup.enter.native="play()"></md-input>
 
-      <md-button class="md-icon-button" @click="play()">
+      <md-button class="md-icon-button" :disabled="!isMoveComplete" @click="play()">
         <md-icon>play_arrow</md-icon>
       </md-button>
 
@@ -21,6 +21,7 @@
 <script>
   import BcListMoves from '../components/BcListMoves.vue'
 
+  import eventBus from '../events'
   import BullsAndCows from '../game'
 
   export default {
@@ -29,33 +30,34 @@
     data () {
       return {
         currentMove: '',
-        moves: [
-          {
-            value: '1234',
-            bulls: 2,
-            cows: 1
-          },
-          {
-            value: '5678',
-            bulls: 2,
-            cows: 1
-          }
-        ]
+        moves: []
       }
     },
     created () {
-      this.bcgame = new BullsAndCows()
+      this.bcgame = new BullsAndCows(4)
     },
     methods: {
       play () {
-        this.bcgame.play('1111')
+        let currentResult = this.bcgame.play(this.currentMove)
+        if (currentResult.bulls === 4) {
+          eventBus.$emit('messageApp', `You've won!`)
+        }
+        this.moves.push(currentResult)
+        this.currentMove = ''
+      }
+    },
+    computed: {
+      isMoveComplete () {
+        return this.currentMove.length >= 4
       }
     }
   }
 </script>
 
 <style scoped>
+
   .game {
-    margin: 1rem;
+    padding: 0 1.5rem;
   }
+
 </style>
