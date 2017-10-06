@@ -21,6 +21,8 @@
 <script>
   import BcListMoves from '../components/BcListMoves.vue'
 
+  import BullsAndCows from '../game'
+
   export default {
     components: {BcListMoves},
     name: 'game',
@@ -42,9 +44,11 @@
       }
     },
     created () {
+      this.bcgame = new BullsAndCows()
     },
     methods: {
       play () {
+        this.bcgame.play('1111')
       }
     }
   }
