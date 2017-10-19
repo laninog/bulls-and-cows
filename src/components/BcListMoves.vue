@@ -31,4 +31,12 @@
 
 <style scoped>
 
+  .listMoves {
+    flex: 1;
+    overflow: auto;
+    padding: 0.8rem 0;
+    margin: 0.8rem 0;
+    border: 1px solid rgba(0, 0, 0, .2);
+  }
+
 </style>
