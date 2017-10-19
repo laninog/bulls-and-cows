@@ -20,12 +20,29 @@ class BullsAndCows {
     console.log(this.secret)
   }
 
+  isValidMove (move = '') {
+    if (move === '') {
+      return false
+    }
+
+    for (let i = 1; i < move.length; i++) {
+      if (move.substring(i).includes(move.charAt(i - 1))) {
+        return false
+      }
+    }
+
+    return true
+  }
+
   play (move = '') {
     let bulls = 0
     let cows = 0
 
     if (move.length <= 0) {
-      return {bulls, cows}
+      return {id: this.attempts,
+        value: move,
+        bulls,
+        cows}
     }
 
     this.attempts++
