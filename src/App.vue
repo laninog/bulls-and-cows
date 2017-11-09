@@ -5,19 +5,29 @@
     <!-- Views -->
     <router-view></router-view>
 
+    <md-snackbar md-position="bottom center" md-duration="2000" ref="snackbar">
+      <span>{{message}}</span>
+    </md-snackbar>
+
   </div>
 
 </template>
 
 <script>
+  import eventBus from './events'
+
   export default {
     name: 'app',
     data () {
-      return {}
+      return {
+        message: ''
+      }
     },
     created () {
-    },
-    methods: {
+      eventBus.$on('messageApp', (msg) => {
+        this.message = msg
+        this.$refs.snackbar.open()
+      })
     }
   }
 </script>
