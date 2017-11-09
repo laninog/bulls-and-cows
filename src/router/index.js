@@ -20,7 +20,7 @@ export default new Router({
       component: Config
     },
     {
-      path: '/game',
+      path: '/game/:level',
       name: 'Game',
       component: Game
     }
