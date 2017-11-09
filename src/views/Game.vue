@@ -1,21 +1,28 @@
 <template>
-  <div class="game">
 
-    <md-input-container>
+  <section class="game">
 
-      <label>Enter your move</label>
+    <md-toolbar>
+      <h2 class="md-title">Bulls & Cows</h2>
+    </md-toolbar>
 
-      <md-input v-model="currentMove" maxlength="4" @keyup.enter.native="play()"></md-input>
+    <section class="gameLayout">
 
-      <md-button class="md-icon-button" :disabled="!isMoveComplete" @click="play()">
-        <md-icon>play_arrow</md-icon>
-      </md-button>
+      <md-input-container>
+        <label for="currentMove">Enter your move</label>
+        <md-input id="currentMove" v-model="currentMove" :maxlength="digits" @keyup.enter.native="play()"></md-input>
 
-    </md-input-container>
+        <md-button class="md-icon-button" :disabled="!isMoveComplete" @click="play()">
+          <md-icon>play_arrow</md-icon>
+        </md-button>
+      </md-input-container>
 
-    <bc-list-moves :moves="moves"></bc-list-moves>
+      <bc-list-moves :moves="moves"></bc-list-moves>
 
-  </div>
+    </section>
+
+  </section>
+
 </template>
 
 <script>
@@ -29,12 +36,13 @@
     name: 'game',
     data () {
       return {
+        digits: this.$route.params.level,
         currentMove: '',
         moves: []
       }
     },
     created () {
-      this.bcgame = new BullsAndCows(4)
+      this.bcgame = new BullsAndCows(this.digits)
     },
     methods: {
       play () {
@@ -42,7 +50,7 @@
           let currentResult = this.bcgame.play(this.currentMove)
           this.moves.unshift(currentResult)
           this.currentMove = ''
-          if (currentResult.bulls === 4) {
+          if (currentResult.bulls === this.digits) {
             eventBus.$emit('messageApp', `You've won!`)
           }
         } else {
@@ -52,7 +60,7 @@
     },
     computed: {
       isMoveComplete () {
-        return this.currentMove.length >= 4
+        return this.currentMove.length >= this.digits
       }
     }
   }
@@ -60,7 +68,7 @@
 
 <style scoped>
 
-  .game {
+  .game .gameLayout {
     padding: 0 1.5rem;
     height: calc(100vh - 64px);
     display: flex;
