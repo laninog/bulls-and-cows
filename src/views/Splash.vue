@@ -12,7 +12,7 @@
   export default {
     name: 'splash',
     created () {
-      setTimeout(() => this.$router.push('/game'), 4000)
+      setTimeout(() => this.$router.push('/config'), 4000)
     }
   }
 </script>
