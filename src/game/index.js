@@ -1,7 +1,7 @@
 
 class BullsAndCows {
 
-  constructor (digits = 2) {
+  constructor (digits = 3) {
     this.digits = digits
     this.secret = ''
     this.attempts = 0
