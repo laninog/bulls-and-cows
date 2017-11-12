@@ -17,11 +17,17 @@
 </template>
 
 <script>
+  import eventBus from '../events'
+  import {store} from '../store'
+
   export default {
     name: 'splash',
     created () {
-      // Simulate login process
-      setTimeout(() => this.$router.push('/config'), 4000)
+      eventBus.$on('loggedApp', () => {
+        setTimeout(() => this.$router.push('/config'), 1000)
+      })
+      store.addAuthListener()
+      store.tryLogin()
     }
   }
 </script>
