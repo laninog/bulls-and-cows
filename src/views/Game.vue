@@ -29,6 +29,8 @@
   import BcListMoves from '../components/BcListMoves.vue'
 
   import eventBus from '../events'
+  import {store} from '../store'
+
   import BullsAndCows from '../game'
 
   export default {
@@ -49,6 +51,7 @@
         if (this.bcgame.isValidMove(this.currentMove)) {
           let currentResult = this.bcgame.play(this.currentMove)
           this.moves.unshift(currentResult)
+          store.addMove(currentResult)
           this.currentMove = ''
           if (currentResult.bulls === this.digits) {
             eventBus.$emit('messageApp', `You've won!`)
