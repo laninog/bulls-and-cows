@@ -28,6 +28,8 @@
 </template>
 
 <script>
+  import {store} from '../store'
+
   export default {
     name: 'config',
     data () {
@@ -37,10 +39,10 @@
       }
     },
     created () {
-      // setTimeout(() => this.$router.push('/game'), 4000)
     },
     methods: {
       startNewGame () {
+        store.createGame(this.levelGame)
         this.$router.push(`/game/${this.levelGame}`)
       }
     }
