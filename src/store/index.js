@@ -45,9 +45,10 @@ export const store = {
     if (!this.state.user) {
       return
     }
-    this.state.currentGame = this.state.db.ref(this.state.user.email).child('games').push().key
+    this.state.currentGame = this.state.db.ref(this.state.user.uid).child('games').push().key
     this.state.db.ref(this.state.user.uid).child('games').child(this.state.currentGame).set({
-      level
+      level,
+      initDate: new Date().getTime()
     })
     console.log('createGame %s', level)
   },
@@ -60,6 +61,10 @@ export const store = {
       bulls: move.bulls,
       cows: move.cows
     })
-    console.log('addMove ', move)
+  },
+  finishGame () {
+    this.state.db.ref(this.state.user.uid).child('games').child(this.state.currentGame).update({
+      endDate: new Date().getTime()
+    })
   }
 }
