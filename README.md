@@ -1,6 +1,6 @@
 # bulls-and-cows
 
-> A Vue.js project
+> Vuejs implementation of classic game Bulls and Cows
 
 ## Build Setup
 
