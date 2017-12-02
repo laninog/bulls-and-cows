@@ -1,7 +1,7 @@
 {
   "name": "bulls-and-cows",
   "version": "1.0.0",
-  "description": "A Vue.js project",
+  "description": "Vuejs implementation of classic game Bulls and Cows",
   "author": "Alejandro Niño <alejandro6230@gmail.com>",
   "private": true,
   "scripts": {
