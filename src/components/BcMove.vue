@@ -30,13 +30,14 @@
 <style scoped>
 
   .move{
-    margin-bottom: 1.8rem;
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
   }
 
   span {
-    font-size: 2.5rem;
+    font-size: 2.0rem;
     color: #2c3e50;
-    margin-right: 1rem;
+    margin-right: 0.8rem;
   }
 
 </style>

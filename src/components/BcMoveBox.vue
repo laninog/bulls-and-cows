@@ -55,6 +55,8 @@
 
   .move-box {
     text-align: center;
+    margin-top: 0.8rem;
+    margin-bottom: 0.8rem;
   }
 
   .move-box .selectors {
@@ -62,7 +64,7 @@
     flex-direction: row;
     justify-content: space-around;
     margin-top: 0.2rem;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.8rem;
   }
 
   .move-box .play {
