@@ -38,6 +38,7 @@
     font-size: 2.0rem;
     color: #2c3e50;
     margin-right: 0.8rem;
+    user-select: none;
   }
 
 </style>
