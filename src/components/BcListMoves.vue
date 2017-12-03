@@ -1,6 +1,6 @@
 <template>
 
-  <div class="listMoves">
+  <div class="list-moves">
 
     <md-list>
 
@@ -31,10 +31,10 @@
 
 <style scoped>
 
-  .listMoves {
+  .list-moves {
     flex: 1;
     overflow: auto;
-    padding: 0.8rem 0;
+    padding: 0.1rem 0;
     margin: 0.8rem 0;
     border: 1px solid rgba(0, 0, 0, .2);
   }
