@@ -1,5 +1,4 @@
 import * as firebase from 'firebase'
-import eventBus from '../events'
 
 let config = {
   apiKey: 'AIzaSyD_QvyLTPjaSX687vvOs2TF-Kolx7UeBW4',
@@ -17,29 +16,8 @@ export const store = {
   state: {
     user: null,
     currentGame: '',
+    auth: firebase.auth,
     db: firebase.database()
-  },
-  addAuthListener () {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.state.user = {
-          uid: user.uid,
-          userName: user.email.substring(0, user.email.indexOf('@')),
-          name: user.displayName
-        }
-        eventBus.$emit('loggedApp')
-      }
-    })
-  },
-  tryLogin () {
-    let provider = new firebase.auth.GoogleAuthProvider()
-    provider.addScope('profile')
-    provider.addScope('email')
-    firebase.auth().signInWithPopup(provider).then((result) => {
-      // User info will be loaded onAuthStateChanged
-    }).catch((err) => {
-      console.error('Login method:', err)
-    })
   },
   createGame (level = 3) {
     if (!this.state.user) {
