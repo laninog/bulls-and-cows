@@ -17,17 +17,31 @@
 </template>
 
 <script>
-  import eventBus from '../events'
   import {store} from '../store'
 
   export default {
     name: 'splash',
     created () {
-      eventBus.$on('loggedApp', () => {
-        setTimeout(() => this.$router.push('/config'), 1000)
+      store.state.auth().onAuthStateChanged((user) => {
+        if (user) {
+          store.state.user = {
+            uid: user.uid,
+            userName: user.email.substring(0, user.email.indexOf('@')),
+            name: user.displayName
+          }
+          this.$router.push('/config')
+        }
       })
-      store.addAuthListener()
-      store.tryLogin()
+    },
+    mounted () {
+      let provider = new store.state.auth.GoogleAuthProvider()
+      provider.addScope('profile')
+      provider.addScope('email')
+      store.state.auth().signInWithPopup(provider).then((result) => {
+        // User info will be loaded onAuthStateChanged
+      }).catch((err) => {
+        console.error('Login method:', err)
+      })
     }
   }
 </script>
