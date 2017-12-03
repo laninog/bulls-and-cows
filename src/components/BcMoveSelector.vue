@@ -63,6 +63,7 @@
     vertical-align: baseline;
     background-color: #3f51b5;
     width: 3rem;
+    user-select: none;
   }
 
   .move-selector div:nth-child(2) {
