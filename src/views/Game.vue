@@ -77,4 +77,8 @@
     flex-direction: column;
   }
 
+  .game .game-layout label {
+    user-select: none;
+  }
+
 </style>
