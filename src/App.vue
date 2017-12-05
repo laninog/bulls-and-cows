@@ -9,6 +9,17 @@
       <span>{{message}}</span>
     </md-snackbar>
 
+    <md-dialog ref="dialog">
+      <md-dialog-title>You win!</md-dialog-title>
+
+      <md-dialog-content>Would you like to play again?</md-dialog-content>
+
+      <md-dialog-actions>
+        <md-button class="md-default" @click="closeDialog('dialog')">No</md-button>
+        <md-button class="md-primary" @click="playAgain('dialog')">Yes!</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
   </div>
 
 </template>
@@ -28,6 +39,18 @@
         this.message = msg
         this.$refs.snackbar.open()
       })
+      eventBus.$on('dialogApp', (msg) => {
+        this.$refs.dialog.open()
+      })
+    },
+    methods: {
+      playAgain (ref) {
+        this.$refs[ref].close()
+        this.$router.push('/config')
+      },
+      closeDialog (ref) {
+        this.$refs[ref].close()
+      }
     }
   }
 </script>
