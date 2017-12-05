@@ -52,8 +52,7 @@
           this.currentMove = ''
           if (currentResult.bulls === this.digits) {
             store.finishGame()
-            this.$router.push('/config')
-            eventBus.$emit('messageApp', `You've won!`)
+            eventBus.$emit('dialogApp')
           }
         } else {
           eventBus.$emit('messageApp', `Move is not valid!`)
