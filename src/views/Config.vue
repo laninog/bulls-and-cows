@@ -23,6 +23,10 @@
 
     </section>
 
+    <md-button @click="goScore" class="md-fab md-fab-bottom-right">
+      <md-icon>book</md-icon>
+    </md-button>
+
   </section>
 
 </template>
@@ -44,6 +48,9 @@
       startNewGame () {
         store.createGame(this.levelGame)
         this.$router.push(`/game/${this.levelGame}`)
+      },
+      goScore () {
+        this.$router.push('/score')
       }
     }
   }
