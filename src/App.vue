@@ -50,6 +50,7 @@
       },
       closeDialog (ref) {
         this.$refs[ref].close()
+        this.$router.push('/score')
       }
     }
   }
