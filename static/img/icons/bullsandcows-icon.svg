@@ -1,0 +1,54 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="514" width="514" y="-1" x="-1"/>
+  <g display="none" overflow="visible" y="0" x="0" height="100%" width="100%" id="canvasGrid">
+   <rect fill="url(#gridpattern)" stroke-width="0" y="0" x="0" height="100%" width="100%"/>
+  </g>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <g id="svg_40">
+   <ellipse transform="rotate(40.43512725830078 456.1076660156249,235.092788696289) " stroke="#000" ry="46.007441" rx="31.91622" id="svg_23" cy="235.092797" cx="456.10767" stroke-opacity="null" stroke-width="1.5" fill="#602e00"/>
+   <ellipse transform="rotate(40.43512725830078 446.54037475585943,244.60720825195307) " stroke="#000" ry="46.007441" rx="28.678344" id="svg_24" cy="244.607217" cx="446.540369" stroke-opacity="null" stroke-width="1.5" fill="#f78a54"/>
+  </g>
+  <g transform="rotate(-41.97810363769531 57.49998474121093,84.99998474121092) " stroke="null" id="svg_13">
+   <ellipse stroke="#000" ry="48.163905" rx="34.13244" id="svg_11" cy="77.562911" cx="57.499985" stroke-opacity="null" stroke-width="1.5" fill="#7f3f00"/>
+   <ellipse stroke="#000" ry="48.163905" rx="30.66973" id="svg_12" cy="92.437058" cx="57.005313" stroke-opacity="null" stroke-width="1.5" fill="#f78a54"/>
+  </g>
+  <g stroke="null" transform="rotate(40.43512725830078 243.50006103515616,81.4999923706055) " id="svg_10">
+   <ellipse stroke="#000" ry="46.007441" rx="31.91622" id="svg_7" cy="74.395901" cx="243.500031" stroke-opacity="null" stroke-width="1.5" fill="#7f3f00"/>
+   <ellipse stroke="#000" ry="46.007441" rx="28.678344" id="svg_8" cy="88.604082" cx="243.037478" stroke-opacity="null" stroke-width="1.5" fill="#f78a54"/>
+  </g>
+  <ellipse stroke="#000" ry="139.500002" rx="106.999993" id="svg_1" cy="185.499993" cx="150.999982" stroke-width="1.5" fill="#ffd4aa"/>
+  <g id="svg_19">
+   <ellipse ry="26.500005" rx="22.000004" id="svg_17" cy="150.499978" cx="103.499979" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#4c4c4c"/>
+   <ellipse ry="26.500005" rx="22.000004" id="svg_18" cy="150.499978" cx="198.49999" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#4c4c4c"/>
+  </g>
+  <ellipse stroke="#000" ry="97.499991" rx="118.999999" id="svg_2" cy="263.999987" cx="150.999978" stroke-opacity="null" stroke-width="1.5" fill="#f78a54"/>
+  <path id="svg_5" d="m22.200017,118.000018" opacity="0.5" fill-opacity="null" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#fff"/>
+  <path id="svg_9" d="m332.200073,108.000016" opacity="0.5" fill-opacity="null" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#fff"/>
+  <g id="svg_16">
+   <ellipse ry="36.000006" rx="17.500003" id="svg_14" cy="294.000027" cx="83.499971" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#7f3f00"/>
+   <ellipse ry="36.000006" rx="17.500003" id="svg_15" cy="294.000027" cx="218.499987" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#7f3f00"/>
+  </g>
+  <g id="svg_41">
+   <ellipse transform="rotate(-54.800254821777344 274.4228210449219,236.7130432128906) " stroke="#000" ry="48.163905" rx="34.13244" id="svg_20" cy="236.71305" cx="274.422824" stroke-opacity="null" stroke-width="1.5" fill="#602e00"/>
+   <ellipse transform="rotate(-54.800254821777344 286.2920532226563,245.691162109375) " stroke="#000" ry="48.163905" rx="30.66973" id="svg_21" cy="245.691171" cx="286.292058" stroke-opacity="null" stroke-width="1.5" fill="#f78a54"/>
+  </g>
+  <ellipse stroke="#000" ry="139.500002" rx="106.999993" id="svg_26" cy="329.500012" cx="366.000011" stroke-width="1.5" fill="#fff"/>
+  <g id="svg_29">
+   <ellipse ry="26.500005" rx="22.000004" id="svg_27" cy="294.499997" cx="318.500007" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#191919"/>
+   <ellipse ry="26.500005" rx="22.000004" id="svg_28" cy="294.499997" cx="413.500019" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#191919"/>
+  </g>
+  <ellipse stroke="#000" ry="84.499987" rx="118.999999" id="svg_30" cy="406.000009" cx="366.000007" stroke-opacity="null" stroke-width="1.5" fill="#f78a54"/>
+  <path id="svg_31" d="m509.200094,235.000031" opacity="0.5" fill-opacity="null" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#fff"/>
+  <g id="svg_34">
+   <ellipse ry="36.000006" rx="17.500003" id="svg_32" cy="426.000045" cx="298.5" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#602e00"/>
+   <ellipse ry="36.000006" rx="17.500003" id="svg_33" cy="426.000045" cx="433.500016" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#602e00"/>
+  </g>
+  <path stroke="#000" id="svg_38" d="m339.811751,244.060081l0,0c-37.039324,0 -67.071582,-19.727063 -67.071582,-44.069374c0,-24.339192 30.032258,-44.069374 67.071582,-44.069374l0,0c-21.108729,10.403017 -33.533488,26.731013 -33.533488,44.069374s12.424758,33.663239 33.533488,44.069374z" fill-opacity="null" stroke-opacity="null" stroke-width="1.5" fill="#4c4c4c"/>
+  <path stroke="#000" transform="rotate(-179.032958984375 423.75695800781256,199.1169891357422) " id="svg_39" d="m457.774815,243.186368l0,0c-37.57174,0 -68.035691,-19.727064 -68.035691,-44.069374c0,-24.339192 30.463951,-44.069374 68.035691,-44.069374l0,0c-21.412153,10.403017 -34.015509,26.731013 -34.015509,44.069374s12.603356,33.663239 34.015509,44.069374z" fill-opacity="null" stroke-opacity="null" stroke-width="1.5" fill="#4c4c4c"/>
+ </g>
+</svg>
