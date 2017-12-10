@@ -1,0 +1,31 @@
+{
+  "name": "Bulls and Cows",
+  "short_name": "B&C",
+  "icons": [
+    {
+      "src": "/static/img/icons/bullsandcows-icon-64x64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/icons/bullsandcows-icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/icons/bullsandcows-icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/icons/bullsandcows-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#FFF",
+  "theme_color": "#3f51b5"
+}
