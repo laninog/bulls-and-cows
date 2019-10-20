@@ -32,6 +32,7 @@
 </template>
 
 <script>
+  import firebase from 'firebase'
   import {store} from '../store'
 
   export default {
@@ -43,6 +44,16 @@
       }
     },
     created () {
+      let user = firebase.auth().currentUser
+      debugger
+      if (user) {
+        store.state.user = {
+          uid: user.uid,
+          userName: user.email.substring(0, user.email.indexOf('@')),
+          name: user.displayName
+        }
+        console.log(store.state.user)
+      }
     },
     methods: {
       startNewGame () {
