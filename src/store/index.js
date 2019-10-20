@@ -1,15 +1,11 @@
-import * as firebase from 'firebase'
+// import * as firebase from 'firebase'
 
-let config = {
-  apiKey: 'AIzaSyD_QvyLTPjaSX687vvOs2TF-Kolx7UeBW4',
+/* let config = {
   authDomain: 'bulls-and-cows-a23ac.firebaseapp.com',
   databaseURL: 'https://bulls-and-cows-a23ac.firebaseio.com',
-  projectId: 'bulls-and-cows-a23ac',
-  storageBucket: 'bulls-and-cows-a23ac.appspot.com',
-  messagingSenderId: '893718312790'
-}
+} */
 
-firebase.initializeApp(config)
+// firebase.initializeApp(config)
 
 export const store = {
   debug: true,
@@ -17,50 +13,50 @@ export const store = {
     user: null,
     currentKey: '',
     lastGame: {},
-    lastGames: [],
-    auth: firebase.auth,
-    db: firebase.database()
+    lastGames: []
+    /* auth: firebase.auth,
+    db: firebase.database() */
   },
   createGame (level = 3) {
-    if (!this.state.user) {
+    /* if (!this.state.user) {
       return
     }
     this.state.currentKey = this.state.db.ref(this.state.user.uid).child('games').push().key
     this.state.db.ref(this.state.user.uid).child('games').child(this.state.currentKey).set({
       level,
       initDate: new Date().getTime()
-    })
+    }) */
   },
   addMove (move = null) {
-    if (!move) {
+    /* if (!move) {
       return
     }
     this.state.db.ref(this.state.user.uid).child('games').child(this.state.currentKey).child('moves').child(move.id).set({
       value: move.value,
       bulls: move.bulls,
       cows: move.cows
-    })
+    }) */
   },
   finishGame () {
-    this.state.db.ref(this.state.user.uid).child('games').child(this.state.currentKey).update({
+    /* this.state.db.ref(this.state.user.uid).child('games').child(this.state.currentKey).update({
       endDate: new Date().getTime()
-    })
+    }) */
   },
   getLastGames () {
-    this.state.lastGames = []
+    /* this.state.lastGames = []
     this.state.db.ref(this.state.user.uid).child('games').orderByChild('initDate')
       .limitToLast(5).on('child_added', snapshot => {
         this.state.lastGames.push(this._getSnapshotValue(snapshot))
-      })
+      }) */
   },
   getLastGame () {
-    this.state.db.ref(this.state.user.uid).child('games').orderByChild('initDate')
+    /* this.state.db.ref(this.state.user.uid).child('games').orderByChild('initDate')
       .limitToLast(1).on('child_added', snapshot => {
         this.state.lastGame = this._getSnapshotValue(snapshot)
-      })
+      }) */
   },
   _getSnapshotValue (snapshot) {
-    let v = snapshot.val()
+    /* let v = snapshot.val()
     let min = Math.floor(((v.endDate - v.initDate) / 1000) / 60)
     let sec = Math.floor(((v.endDate - v.initDate) / 1000) % 60)
     return {
@@ -68,6 +64,6 @@ export const store = {
       moves: v.moves.length,
       date: new Date(v.initDate).toLocaleDateString(),
       time: `${min}:${sec}`
-    }
+    } */
   }
 }

@@ -1,19 +1,28 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import Splash from '@/views/Splash'
+import Auth from '@/views/Auth'
+// import Splash from '@/views/Splash'
 import Config from '@/views/Config'
 import Game from '@/views/Game'
 import Score from '@/views/Score'
 
 Vue.use(Router)
 
-export default new Router({
+let router = new Router({
   routes: [
     {
+      path: '*',
+      redirect: '/auth'
+    },
+    {
       path: '/',
-      name: 'Splash',
-      component: Splash
+      redirect: '/auth'
+    },
+    {
+      path: '/auth',
+      name: 'Auth',
+      component: Auth
     },
     {
       path: '/config',
@@ -32,3 +41,9 @@ export default new Router({
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  next()
+})
+
+export default router

@@ -3,6 +3,9 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import firebase from 'firebase'
+
+import {config} from './config'
 
 import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.css'
@@ -16,5 +19,14 @@ new Vue({
   el: '#app',
   router,
   template: '<App/>',
-  components: { App }
+  components: { App },
+  created () {
+    firebase.initializeApp(config)
+    firebase.auth().onAuthStateChanged((user) => {
+      debugger
+      if (user) {
+        this.$router.push('/config')
+      }
+    })
+  }
 })
