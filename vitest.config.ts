@@ -43,8 +43,15 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
       include: ['packages/*/src/**', 'apps/*/src/**'],
       exclude: ['**/*.test.ts', '**/*.d.ts', 'apps/web/src/main.ts'],
-      // Umbrales globales de F0. F1 sube el dominio a 95 (doc 04).
-      thresholds: { lines: 80, functions: 80, branches: 80, statements: 80 },
+      thresholds: {
+        // Global
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+        // F1: el dominio exige ≥ 95 (doc 04)
+        'packages/domain/src/**': { lines: 95, functions: 95, branches: 95, statements: 95 },
+      },
     },
   },
 })

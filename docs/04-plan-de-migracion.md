@@ -57,6 +57,14 @@ escribir código de producto. Es el error que se paga en el legacy: el
 *Cierra:* DT-04, DT-15, parte de DT-06, SEC-04.
 *Tamaño:* S.
 
+> **Estado: entregado (2026-09-11).** Verificado en contenedor: `pnpm check`
+> en verde, e2e en verde, un `console.log` rompe lint, `domain` no puede
+> importar dependencias no declaradas, `pnpm install --frozen-lockfile`
+> reproducible. Versiones resueltas: Vue 3.5, Vite 8, Vitest 5, ESLint 10,
+> TypeScript 6.0 (fijado; ver D-17), Wrangler 4, Zod 4, Playwright 1.63.
+> Pendiente de ejecutar en local: `scripts/f0-migrate.sh` (tag, rama, borrado
+> del legacy, commit).
+
 ---
 
 ### F1 — Dominio
@@ -85,6 +93,15 @@ riesgo: lógica pura, sin UI, sin red.
 
 *Cierra:* BF-01, BF-03, BF-04, DT-03 (parcial), DT-07, SEC-03 (la filtración).
 *Tamaño:* S.
+
+> **Estado: entregado (2026-09-11).** `packages/domain/src/{level,random,secret,guess,evaluate,game}.ts`.
+> 39 tests de dominio (44 en total), cobertura del dominio 100 % en líneas,
+> ramas y funciones; umbral 95 % fijado en `vitest.config.ts`. Verificado que
+> el paquete compila aislado sin `node_modules` propios. API: `generateSecret`,
+> `validateGuess`, `evaluate`, `isSolved`, `startGame`, `play`,
+> `createSeededRandom`; estado inmutable, sin reloj, aleatoriedad inyectada.
+> Secreto por Fisher-Yates parcial (equiprobable, sin reintentos); cows por
+> intersección de conjuntos, con simetría verificada por propiedad.
 
 ---
 
