@@ -1,5 +1,27 @@
-.idea
-node_modules
-package-lock.json
-dist
+# Dependencias
+node_modules/
 
+# Build
+dist/
+.wrangler/
+*.tsbuildinfo
+
+# Tests
+coverage/
+test-results/
+playwright-report/
+blob-report/
+
+# Entorno
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# IDE / SO
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+
+# NOTA: pnpm-lock.yaml se versiona deliberadamente (SEC-04 / DT-04).

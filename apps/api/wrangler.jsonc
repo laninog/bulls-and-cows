@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bulls-and-cows-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "vars": { "APP_VERSION": "2.0.0-dev" },
+  // F3 añade aquí el binding de D1; F4 los secrets de OAuth (vía `wrangler secret`).
+}

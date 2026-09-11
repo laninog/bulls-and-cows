@@ -1,0 +1,5 @@
+# Cabeceras de Cloudflare Pages. F5 completa la CSP (SEC-07).
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
