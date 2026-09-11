@@ -5,3 +5,6 @@ coverage
 pnpm-lock.yaml
 playwright-report
 test-results
+
+# Documentación: prosa, no código. Fuera del gate de formato.
+docs/
