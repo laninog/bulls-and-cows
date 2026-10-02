@@ -153,7 +153,8 @@ DT-17, DT-18, SEC-06.
 | **F2.2** Sistema de diseño y accesibilidad | Tokens CSS, selectores `+/−` alternativos, foco, teclado, `aria`, responsive, `axe` | **Entregado 2026-10-02.** Tokens claro/oscuro con contraste AA verificado en CI (36 pares). Nivel como grupo de radios; selectores `+/−` cíclicos y flechas ↑/↓ como equivalente de teclado; preferencia de modo persistida. Región viva que anuncia cada intento; foco gestionado al navegar, tras cada intento y al ganar; título por vista; enlace de salto. Dos columnas en escritorio; historial en tarjetas en móvil. 113 tests unitarios; 14 escenarios e2e ×2 dispositivos, incluidos **axe con cero violaciones WCAG 2.2 AA en las tres pantallas y ambos temas** y una **partida completa solo con teclado**. |
 | | *Corrección asociada* | `crypto.randomUUID` no existe fuera de contexto seguro (acceso por IP de la LAN): UUID v4 desde `getRandomValues`. Scripts `dev:lan` / `preview:lan`. |
 | **F2.3** Contenido | i18n `es`/`en`, reglas, ajustes | pendiente (las cadenas ya están centralizadas en `ui/strings.ts`) |
-| **F2.4** PWA y publicación | Manifiesto, service worker, Lighthouse, Cloudflare Pages | pendiente |
+| **F2.4** PWA y publicación | Manifiesto, service worker, Lighthouse, Cloudflare Pages por Direct Upload desde Bitbucket Pipelines (D-23) | pendiente |
+| | *CI* | **Migrada a Bitbucket Pipelines 2026-10-02** (D-22). Paso `check` simulado desde copia limpia: 48 s sin caché. |
 
 ---
 

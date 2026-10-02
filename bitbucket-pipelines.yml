@@ -1,0 +1,78 @@
+# CI de Bitbucket Pipelines.
+#
+# Diseñado para el plan gratuito (50 minutos/mes, sin posibilidad de comprar más):
+#  - Cualquier rama: solo el gate rápido (lint, formato, contraste, tipos, tests, build).
+#  - main y pull requests: además, e2e + accesibilidad (axe) sobre la build.
+#  - e2e manual disponible desde la interfaz de Bitbucket (custom: e2e).
+#  - max-time por paso para que un cuelgue no consuma el presupuesto del mes.
+
+image: node:22-bookworm-slim
+
+clone:
+  depth: 1
+
+definitions:
+  caches:
+    pnpm:
+      key:
+        files:
+          - pnpm-lock.yaml
+      # Fuera del clon: dentro, Prettier y ESLint recorrerían el contenido de la caché.
+      path: ~/.pnpm-store
+
+  steps:
+    - step: &check
+        name: Lint · formato · contraste · tipos · tests · build
+        max-time: 10
+        caches:
+          - pnpm
+        script:
+          - corepack enable
+          - pnpm config set store-dir ~/.pnpm-store
+          - pnpm install --frozen-lockfile
+          - pnpm lint
+          - pnpm format:check
+          - pnpm check:contrast
+          - pnpm typecheck
+          - pnpm test:coverage
+          - pnpm build
+        artifacts:
+          - apps/web/dist/**
+
+    - step: &e2e
+        name: e2e · accesibilidad
+        # Imagen oficial de Playwright: navegadores ya instalados, sin descargas por build.
+        # Mantener la versión alineada con @playwright/test en apps/web/package.json.
+        image: mcr.microsoft.com/playwright:v1.63.0-noble
+        max-time: 15
+        caches:
+          - pnpm
+        script:
+          - corepack enable
+          - pnpm config set store-dir ~/.pnpm-store
+          - pnpm install --frozen-lockfile
+          - CI=1 pnpm test:e2e
+        after-script:
+          - '[ "$BITBUCKET_EXIT_CODE" -eq 0 ] || echo "e2e fallido: revisa el artefacto playwright-report"'
+        artifacts:
+          - apps/web/playwright-report/**
+          - apps/web/test-results/**
+
+pipelines:
+  default:
+    - step: *check
+
+  branches:
+    main:
+      - step: *check
+      - step: *e2e
+
+  pull-requests:
+    '**':
+      - step: *check
+      - step: *e2e
+
+  custom:
+    e2e:
+      - step: *check
+      - step: *e2e

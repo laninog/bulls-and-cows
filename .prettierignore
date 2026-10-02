@@ -8,3 +8,4 @@ test-results
 
 # Documentación: prosa, no código. Fuera del gate de formato.
 docs/
+.pnpm-store

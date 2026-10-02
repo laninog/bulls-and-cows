@@ -25,3 +25,6 @@ blob-report/
 .DS_Store
 
 # NOTA: pnpm-lock.yaml se versiona deliberadamente (SEC-04 / DT-04).
+
+# Caché de pnpm si se configura dentro del repo
+.pnpm-store/

@@ -401,22 +401,30 @@ antes de que exista backend alguno. Esto tiene tres efectos:
 
 ### 7.2 Pipeline
 
+**Bitbucket Pipelines** (D-22), configurado en `bitbucket-pipelines.yml`. El
+plan gratuito limita a 50 minutos/mes sin posibilidad de ampliar, así que el
+pipeline gasta en proporción al riesgo:
+
 ```
-push / PR
-  ├── lint + format
-  ├── typecheck
-  ├── test:unit  (gate de cobertura)
-  ├── test:contract
-  ├── build
-  ├── test:e2e + a11y  (sobre el build)
-  ├── SCA (npm audit + OSV) + SBOM (CycloneDX)
-  └── deploy preview
-main
-  └── deploy producción + publicación de SBOM
+cualquier rama
+  └── check: lint · formato · contraste · tipos · tests (cobertura, contrato) · build
+main y pull requests
+  ├── check
+  └── e2e + a11y (axe, ambos temas)            imagen oficial de Playwright
+manual (custom: e2e)
+  └── check + e2e
+F5 añade:  SCA (npm audit + OSV) + SBOM (CycloneDX) en main
+F2.4 añade: deploy a Cloudflare Pages con `wrangler pages deploy` en main
 ```
 
-Cierra DT-06 y SEC-05. Renovate para actualizaciones automatizadas —  el control
-que evita que esto vuelva a ocurrir.
+**Despliegue por Direct Upload** (D-23): Cloudflare Pages solo se integra de
+forma nativa con GitHub y GitLab. Desde Bitbucket, el pipeline construye y sube
+el artefacto con Wrangler. El control del despliegue queda así en la CI —  mismo
+artefacto que pasó los tests —  a cambio de gestionar un token de API de
+Cloudflare como variable segura del repositorio.
+
+Cierra DT-06 y SEC-05. Renovate (compatible con Bitbucket Cloud) para
+actualizaciones automatizadas —  el control que evita que esto vuelva a ocurrir.
 
 ### 7.3 Observabilidad
 
