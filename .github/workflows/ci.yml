@@ -37,10 +37,12 @@ jobs:
         with:
           name: web-dist
           path: apps/web/dist
+          # .assetsignore es un fichero oculto: sin esto se perdería y se publicarían los source maps.
+          include-hidden-files: true
           retention-days: 7
 
   e2e:
-    name: e2e · accesibilidad
+    name: e2e · accesibilidad · PWA (contra el Worker)
     needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -64,3 +66,81 @@ jobs:
           name: playwright-report
           path: apps/web/playwright-report
           retention-days: 7
+
+  # Producción: solo desde main y solo si check y e2e han pasado. Se publica
+  # exactamente la build que pasó las pruebas (artefacto web-dist).
+  deploy:
+    name: despliegue a producción
+    needs: [check, e2e]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: apps/web/dist
+      - name: wrangler deploy
+        id: deploy
+        working-directory: apps/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          test -f ../web/dist/.assetsignore || { echo "::error::Falta .assetsignore en la build"; exit 1; }
+          pnpm exec wrangler deploy --var "APP_VERSION:${GITHUB_SHA::7}" | tee deploy.log
+          url=$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "### Producción: $url" >> "$GITHUB_STEP_SUMMARY"
+      - name: comprobación tras el despliegue
+        run: |
+          body=$(curl -sf --retry 5 --retry-delay 3 "${{ steps.deploy.outputs.url }}/api/health")
+          echo "$body"
+          echo "$body" | grep -q "\"version\":\"${GITHUB_SHA::7}\"" || { echo "::error::La versión desplegada no coincide"; exit 1; }
+
+  # Previsualización por PR (solo PRs del propio repositorio: los forks no tienen acceso a los secretos).
+  preview:
+    name: previsualización del PR
+    needs: [check, e2e]
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: apps/web/dist
+      - name: wrangler versions upload
+        working-directory: apps/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          pnpm exec wrangler versions upload --preview-alias "pr-${{ github.event.number }}" \
+            --var "APP_VERSION:pr-${{ github.event.number }}-${GITHUB_SHA::7}" | tee upload.log
+          {
+            echo "### Previsualización del PR #${{ github.event.number }}"
+            grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' upload.log | sort -u | sed 's/^/- /'
+          } >> "$GITHUB_STEP_SUMMARY"

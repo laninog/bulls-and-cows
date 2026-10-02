@@ -110,6 +110,11 @@ export const en: Messages = {
     ],
     cta: 'Start playing',
   },
+  pwa: {
+    updateAvailable: 'A new version of the game is available.',
+    update: 'Update',
+    later: 'Later',
+  },
   settings: {
     title: 'Settings',
     languageLegend: 'Language',

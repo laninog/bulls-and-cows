@@ -1,10 +1,21 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "bulls-and-cows-api",
+  // Un único Worker sirve la SPA (assets estáticos) y la API en /api/* (D-27):
+  // mismo origen, sin CORS, cookie de sesión de primera parte en F4.
+  "name": "bulls-and-cows",
   "main": "src/index.ts",
   "compatibility_date": "2026-09-01",
-  "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  "workers_dev": true,
+  "preview_urls": true,
+  "assets": {
+    "directory": "../web/dist",
+    "binding": "ASSETS",
+    // Rutas de la SPA (/play, /rules…) sirven index.html; el router del cliente decide.
+    "not_found_handling": "single-page-application",
+    // Solo la API ejecuta el Worker; el resto lo sirve la red de assets directamente.
+    "run_worker_first": ["/api/*"],
+  },
   "vars": { "APP_VERSION": "2.0.0-dev" },
   // F3 añade aquí el binding de D1; F4 los secrets de OAuth (vía `wrangler secret`).
 }

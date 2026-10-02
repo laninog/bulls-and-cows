@@ -33,6 +33,12 @@ export default defineConfig({
         test: {
           name: 'web',
           root: 'apps/web',
+          alias: {
+            'virtual:pwa-register/vue': new URL(
+              './apps/web/src/test-stubs/pwa-register-vue.ts',
+              import.meta.url,
+            ).pathname,
+          },
           environment: 'jsdom',
           include: ['src/**/*.test.ts'],
           setupFiles: ['src/test-setup.ts'],
@@ -49,6 +55,7 @@ export default defineConfig({
         '**/*.contract.ts',
         '**/test-services.ts',
         '**/test-setup.ts',
+        '**/test-stubs/**',
         // Raíces de composición: sin lógica, cubiertas por los e2e.
         'apps/web/src/main.ts',
         'apps/web/src/ui/router.ts',

@@ -117,6 +117,11 @@ export const es = {
     ],
     cta: 'Empezar a jugar',
   },
+  pwa: {
+    updateAvailable: 'Hay una versión nueva del juego.',
+    update: 'Actualizar',
+    later: 'Más tarde',
+  },
   settings: {
     title: 'Ajustes',
     languageLegend: 'Idioma',

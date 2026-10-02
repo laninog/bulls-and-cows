@@ -327,6 +327,12 @@ responsabilidad propia —  luz, red, disco y backups.
 **Cloudflare Pages + Workers + D1** (D-09), tras cerrarse P-01 con **D-08: el
 juego es público**.
 
+> **Actualización (D-27, 2026-10-02):** en lugar de Pages + un Worker aparte, un
+> **único Worker con static assets** sirve la SPA y la API en `/api/*` desde el
+> mismo origen. Motivo decisivo: con dominios `*.pages.dev` y `*.workers.dev` la
+> cookie de sesión de F4 sería de terceros y los navegadores la bloquearían.
+> Despliegue desde GitHub Actions tras la CI (D-28).
+
 El carácter público descarta el autohospedaje doméstico como infraestructura de
 producción: la disponibilidad de un servicio abierto no debe depender de una
 conexión residencial, y una IP doméstica expuesta a tráfico no controlado es una

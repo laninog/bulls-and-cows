@@ -3,6 +3,7 @@ import { nextTick, onMounted, watchEffect } from 'vue'
 import { START_LOCATION, useRoute, useRouter } from 'vue-router'
 import { usePreferencesStore } from '../application/preferences-store'
 import { useSessionStore } from '../application/session-store'
+import UpdateBanner from './components/UpdateBanner.vue'
 import { focusView } from './focus'
 import { useT } from './i18n'
 
@@ -52,6 +53,7 @@ router.afterEach(async (_to, from, failure) => {
   <main id="main" class="app-main" tabindex="-1">
     <RouterView />
   </main>
+  <UpdateBanner />
 </template>
 
 <style scoped>

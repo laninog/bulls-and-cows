@@ -1,0 +1,11 @@
+# Cabeceras de los assets estáticos (Workers static assets). F5 añade la CSP (SEC-07).
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# El service worker y el manifiesto deben revalidarse siempre para que las actualizaciones lleguen.
+/sw.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache

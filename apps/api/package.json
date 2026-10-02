@@ -7,13 +7,15 @@
     "dev": "wrangler dev",
     "build": "wrangler deploy --dry-run --outdir dist",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev --port 4173"
   },
   "dependencies": {
     "@bnc/contracts": "workspace:*",
     "@bnc/domain": "workspace:*"
   },
   "devDependencies": {
+    "@bnc/web": "workspace:*",
     "@cloudflare/workers-types": "^5.20261002.1",
     "wrangler": "^4.147.0"
   }

@@ -1,0 +1,3 @@
+# Ficheros de la build que NO se publican como assets del Worker.
+# SEC-08: los source maps se generan para el capturador de errores (F5), nunca se sirven.
+*.map
