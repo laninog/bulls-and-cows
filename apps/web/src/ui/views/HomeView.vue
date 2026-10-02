@@ -5,11 +5,12 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '../../application/game-store'
 import { useSessionStore } from '../../application/session-store'
-import { t } from '../strings'
+import { useT } from '../i18n'
 
 const router = useRouter()
 const game = useGameStore()
 const session = useSessionStore()
+const t = useT()
 // BF-08: nunca un nivel fuera de las opciones; por defecto, el primero.
 const level = ref<Level>(LEVELS[0])
 
@@ -22,16 +23,19 @@ async function start() {
 <template>
   <section class="home card" aria-labelledby="home-title">
     <h2 id="home-title" tabindex="-1">{{ t.home.title }}</h2>
-    <p class="muted">{{ t.home.intro }}</p>
+    <p class="muted">
+      {{ t.home.intro }}
+      <RouterLink :to="{ name: 'rules' }">{{ t.home.howToPlay }}</RouterLink>
+    </p>
 
     <form class="home__form" @submit.prevent="start">
-      <fieldset class="levels">
+      <fieldset class="choices choices--2col">
         <legend>{{ t.home.levelLegend }}</legend>
-        <label v-for="l in LEVELS" :key="l" class="level">
-          <input v-model="level" type="radio" name="level" :value="l" class="level__input" />
-          <span class="level__body">
-            <span class="level__name">{{ t.home.levels[l] }}</span>
-            <span class="level__digits">{{ t.home.digits(l) }}</span>
+        <label v-for="l in LEVELS" :key="l" class="choice">
+          <input v-model="level" type="radio" name="level" :value="l" class="choice__input" />
+          <span class="choice__body">
+            <span class="choice__title">{{ t.home.levels[l] }}</span>
+            <span class="choice__hint">{{ t.home.digits(l) }}</span>
           </span>
         </label>
       </fieldset>
@@ -60,70 +64,6 @@ async function start() {
 .home__form {
   display: grid;
   gap: var(--space-5);
-}
-
-.levels {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.levels legend {
-  margin-bottom: var(--space-2);
-  font-weight: 600;
-}
-
-.level {
-  position: relative;
-  cursor: pointer;
-}
-
-/* El radio real sigue en el árbol de accesibilidad y recibe el foco. */
-.level__input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  margin: 0;
-  cursor: pointer;
-}
-
-.level__body {
-  display: grid;
-  gap: var(--space-1);
-  min-height: var(--target-min);
-  padding: var(--space-3) var(--space-4);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  transition:
-    border-color var(--transition),
-    background-color var(--transition);
-}
-
-.level:hover .level__body {
-  border-color: var(--color-border-strong);
-}
-
-.level__input:checked + .level__body {
-  border-color: var(--color-accent);
-  background: var(--color-surface-2);
-}
-
-.level__input:focus-visible + .level__body {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
-.level__name {
-  font-weight: 600;
-}
-
-.level__digits {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
 }
 
 .home__guest {

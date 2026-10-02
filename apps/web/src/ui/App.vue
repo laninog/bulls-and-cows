@@ -1,14 +1,25 @@
 <script setup lang="ts">
-import { nextTick, onMounted } from 'vue'
-import { START_LOCATION, useRouter } from 'vue-router'
+import { nextTick, onMounted, watchEffect } from 'vue'
+import { START_LOCATION, useRoute, useRouter } from 'vue-router'
+import { usePreferencesStore } from '../application/preferences-store'
 import { useSessionStore } from '../application/session-store'
 import { focusView } from './focus'
-import { t } from './strings'
+import { useT } from './i18n'
 
 const session = useSessionStore()
+const prefs = usePreferencesStore()
 const router = useRouter()
+const route = useRoute()
+const t = useT()
 
 onMounted(() => void session.load())
+
+// Idioma del documento (WCAG 3.1.1) y título de la vista (2.4.2), siempre en el idioma activo.
+watchEffect(() => {
+  document.documentElement.lang = prefs.locale
+  const key = route.meta.titleKey
+  document.title = key ? `${t.value.titles[key]} · ${t.value.appName}` : t.value.appName
+})
 
 // En la carga inicial el foco se deja donde lo pone el navegador; en cada
 // navegación posterior, se mueve a la nueva vista.
@@ -26,12 +37,15 @@ router.afterEach(async (_to, from, failure) => {
       <h1 class="brand">
         <RouterLink :to="{ name: 'home' }" class="brand__link">
           <img src="/icons/bullsandcows-icon-64x64.png" alt="" width="36" height="36" />
-          <span>{{ t.appName }}</span>
+          <span class="brand__name">{{ t.appName }}</span>
         </RouterLink>
       </h1>
       <nav :aria-label="t.nav.label" class="app-nav">
-        <RouterLink :to="{ name: 'home' }" class="app-nav__link">{{ t.nav.home }}</RouterLink>
+        <RouterLink :to="{ name: 'rules' }" class="app-nav__link">{{ t.nav.rules }}</RouterLink>
         <RouterLink :to="{ name: 'history' }" class="app-nav__link">{{ t.nav.history }}</RouterLink>
+        <RouterLink :to="{ name: 'settings' }" class="app-nav__link">{{
+          t.nav.settings
+        }}</RouterLink>
       </nav>
     </div>
   </header>
@@ -123,8 +137,18 @@ router.afterEach(async (_to, from, failure) => {
 }
 
 @media (max-width: 30rem) {
-  .brand span {
-    font-size: var(--text-md);
+  .app-nav__link {
+    padding: 0 var(--space-2);
+  }
+
+  /* Sin espacio para el nombre: se oculta visualmente, pero sigue nombrando el enlace. */
+  .brand__name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }
 </style>

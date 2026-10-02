@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useHistoryStore } from '../../application/history-store'
-import { t } from '../strings'
+import { useT } from '../i18n'
 
 const history = useHistoryStore()
+const t = useT()
 onMounted(() => void history.load(10))
 </script>
 

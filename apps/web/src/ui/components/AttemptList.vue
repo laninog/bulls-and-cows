@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { Attempt } from '@bnc/domain'
-import { t } from '../strings'
-import PegIcon from './PegIcon.vue'
+import { useT } from '../i18n'
+import DigitChips from './DigitChips.vue'
+import ScoreBadge from './ScoreBadge.vue'
 
 defineProps<{ attempts: readonly Attempt[] }>()
+const t = useT()
 </script>
 
 <template>
@@ -12,11 +14,15 @@ defineProps<{ attempts: readonly Attempt[] }>()
       <h3>{{ t.play.attempts }}</h3>
       <dl class="legend">
         <div>
-          <dt class="badge badge--bull"><PegIcon kind="bull" /> {{ t.play.bulls }}</dt>
+          <dt>
+            <ScoreBadge kind="bull">{{ t.play.bulls }}</ScoreBadge>
+          </dt>
           <dd>{{ t.play.legend.bulls }}</dd>
         </div>
         <div>
-          <dt class="badge badge--cow"><PegIcon kind="cow" /> {{ t.play.cows }}</dt>
+          <dt>
+            <ScoreBadge kind="cow">{{ t.play.cows }}</ScoreBadge>
+          </dt>
           <dd>{{ t.play.legend.cows }}</dd>
         </div>
       </dl>
@@ -36,15 +42,13 @@ defineProps<{ attempts: readonly Attempt[] }>()
         }}</span>
         <span class="attempt__ordinal" aria-hidden="true">{{ a.ordinal }}</span>
         <span data-testid="guess" class="attempt__guess" aria-hidden="true">
-          <span v-for="(d, k) in a.guess.split('')" :key="k" class="chip">{{ d }}</span>
+          <DigitChips :value="a.guess" />
         </span>
         <span class="attempt__score" aria-hidden="true">
-          <span data-testid="bulls" class="badge badge--bull" :title="t.play.bulls">
-            <PegIcon kind="bull" /> {{ a.bulls }}
-          </span>
-          <span data-testid="cows" class="badge badge--cow" :title="t.play.cows">
-            <PegIcon kind="cow" /> {{ a.cows }}
-          </span>
+          <ScoreBadge kind="bull" :title="t.play.bulls" data-testid="bulls">{{
+            a.bulls
+          }}</ScoreBadge>
+          <ScoreBadge kind="cow" :title="t.play.cows" data-testid="cows">{{ a.cows }}</ScoreBadge>
         </span>
       </li>
     </ol>
@@ -117,48 +121,9 @@ defineProps<{ attempts: readonly Attempt[] }>()
   text-align: right;
 }
 
-.attempt__guess {
-  display: flex;
-  gap: var(--space-1);
-}
-
-.chip {
-  display: inline-grid;
-  place-items: center;
-  width: 2rem;
-  height: 2.25rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  font-family: var(--font-mono);
-  font-size: var(--text-lg);
-  font-weight: 600;
-}
-
 .attempt__score {
   display: flex;
   gap: var(--space-2);
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-full);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.badge--bull {
-  background: var(--color-bull-bg);
-  color: var(--color-bull-fg);
-}
-
-.badge--cow {
-  background: var(--color-cow-bg);
-  color: var(--color-cow-fg);
 }
 
 @keyframes enter {

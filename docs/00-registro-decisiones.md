@@ -29,6 +29,8 @@ Formato ligero: cada entrada fija una decisión y su consecuencia arquitectónic
 | ~~**D-22**~~ | ~~Repositorio en Bitbucket; CI en Bitbucket Pipelines.~~ | 2026-10-02 | **Revocada por D-24.** |
 | ~~**D-23**~~ | ~~Despliegue a Cloudflare Pages por Direct Upload desde Bitbucket Pipelines.~~ | 2026-10-02 | **Revocada por D-24**: era consecuencia de D-22. El método de despliegue se decide en F2.4. |
 | **D-24** | **Repositorio en GitHub; CI en GitHub Actions** (`.github/workflows/ci.yml`). Se retira `bitbucket-pipelines.yml`. | 2026-10-02 | Revoca D-22 y D-23. Con GitHub, Cloudflare Pages admite tanto integración Git nativa como *Direct Upload* desde Actions: la elección queda para F2.4. |
+| **D-25** | **i18n con módulo propio tipado**, no vue-i18n. Catálogo `es` como referencia de tipos; `en` tipado contra él. Plurales y fechas con `Intl`. Idioma detectado del navegador (reserva: inglés), modificable en Ajustes y persistido solo si el jugador lo elige. | 2026-10-02 | Desvía la propuesta del doc 03. Motivos: comprobación en compilación de claves y firmas (verificado: falta de clave o firma distinta rompe el build), cero dependencias (DR-01), tamaño del catálogo (~80 cadenas, 2 idiomas). Migrar a vue-i18n sería mecánico si aparecen muchos idiomas o un flujo con traductores. |
+| **D-26** | **SCA adelantado a la CI**: `pnpm audit --audit-level=high` en cada ejecución. | 2026-10-02 | Adelanta parte de F5 (SEC-05) tras una alerta real de Dependabot (`undici` vía `wrangler`). Bloquea con vulnerabilidades altas o críticas; las moderadas y bajas no bloquean. OSV-Scanner, SBOM y Renovate siguen en F5. |
 
 ## Decisiones pendientes
 

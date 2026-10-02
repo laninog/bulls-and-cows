@@ -35,6 +35,7 @@ export default defineConfig({
           root: 'apps/web',
           environment: 'jsdom',
           include: ['src/**/*.test.ts'],
+          setupFiles: ['src/test-setup.ts'],
         },
       },
     ],
@@ -47,6 +48,7 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.contract.ts',
         '**/test-services.ts',
+        '**/test-setup.ts',
         // Raíces de composición: sin lógica, cubiertas por los e2e.
         'apps/web/src/main.ts',
         'apps/web/src/ui/router.ts',

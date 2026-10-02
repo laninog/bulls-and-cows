@@ -26,9 +26,7 @@ describe('AttemptList', () => {
     expect(li.attributes('value')).toBe('2')
     expect(li.classes()).toContain('attempt--latest')
     expect(items[1]!.classes()).not.toContain('attempt--latest')
-    expect(li.get('[data-testid="attempt-label"]').text()).toBe(
-      'Intento 2: 4 7 1 — 1 bulls, 2 cows',
-    )
+    expect(li.get('[data-testid="attempt-label"]').text()).toBe('Intento 2: 4 7 1 — 1 bull, 2 cows')
     expect(li.get('[data-testid="guess"]').attributes('aria-hidden')).toBe('true')
     expect(li.findAll('.chip').map((c) => c.text())).toEqual(['4', '7', '1'])
     expect(li.get('[data-testid="bulls"]').text()).toContain('1')

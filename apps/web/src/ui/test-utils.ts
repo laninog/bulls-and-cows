@@ -15,9 +15,11 @@ export function setupView() {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
-      { path: '/', name: 'home', component: Stub },
-      { path: '/play', name: 'play', component: Stub },
-      { path: '/history', name: 'history', component: Stub },
+      { path: '/', name: 'home', component: Stub, meta: { titleKey: 'home' } },
+      { path: '/play', name: 'play', component: Stub, meta: { titleKey: 'play' } },
+      { path: '/history', name: 'history', component: Stub, meta: { titleKey: 'history' } },
+      { path: '/rules', name: 'rules', component: Stub, meta: { titleKey: 'rules' } },
+      { path: '/settings', name: 'settings', component: Stub, meta: { titleKey: 'settings' } },
     ],
   })
   return { ...t, router }

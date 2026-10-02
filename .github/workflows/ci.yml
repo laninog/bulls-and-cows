@@ -25,6 +25,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # SCA (SEC-05): falla ante vulnerabilidades altas o críticas en cualquier dependencia.
+      - run: pnpm check:audit
       - run: pnpm lint
       - run: pnpm format:check
       - run: pnpm check:contrast

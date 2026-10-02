@@ -10,6 +10,8 @@ export default defineConfig({
   reporter: process.env['CI'] ? 'github' : 'list',
   use: {
     baseURL: `http://localhost:${port}`,
+    // La batería asume español; i18n.spec.ts cubre la detección de otros idiomas.
+    locale: 'es-ES',
     trace: 'on-first-retry',
   },
   projects: [

@@ -141,3 +141,73 @@ select {
 .muted {
   color: var(--color-text-muted);
 }
+
+/* ---- Grupo de opciones (radios como tarjetas): nivel, idioma, modo de entrada ---- */
+.choices {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.choices > legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-weight: 600;
+}
+
+.choices--2col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.choice {
+  position: relative;
+  cursor: pointer;
+}
+
+/* El radio real sigue en el árbol de accesibilidad y recibe el foco. */
+.choice__input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.choice__body {
+  display: grid;
+  gap: var(--space-1);
+  min-height: var(--target-min);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  transition:
+    border-color var(--transition),
+    background-color var(--transition);
+}
+
+.choice:hover .choice__body {
+  border-color: var(--color-border-strong);
+}
+
+.choice__input:checked + .choice__body {
+  border-color: var(--color-accent);
+  background: var(--color-surface-2);
+}
+
+.choice__input:focus-visible + .choice__body {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.choice__title {
+  font-weight: 600;
+}
+
+.choice__hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

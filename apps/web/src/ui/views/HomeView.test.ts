@@ -17,6 +17,7 @@ describe('HomeView', () => {
     expect(w.get('legend').text()).toBe('Nivel')
     expect(w.text()).toContain('Experto')
     expect(w.text()).toContain('6 dígitos')
+    expect(w.get('a[href="/rules"]').text()).toBe('¿Cómo se juega?')
 
     await radios[2]!.setValue(true)
     await w.get('form').trigger('submit')

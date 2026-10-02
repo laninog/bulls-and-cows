@@ -139,7 +139,7 @@ Consecuencias prácticas:
 | UI | **CSS propio con *custom properties*** — sin framework de componentes | **La decisión menos obvia y la más importante.** El legacy murió porque `vue-material` fue abandonado. Con 4 pantallas y ~8 componentes, un framework Material (Vuetify 3, PrimeVue) aporta poco y reintroduce exactamente el riesgo de DR-01. Se conserva la identidad visual original (`#3f51b5`, iconografía existente) mediante tokens. |
 | Iconos | **SVG sprite autohospedado** | Elimina la dependencia de red de SEC-06 y el CDN de Google Fonts. |
 | Tipografía | **Autohospedada** (`@font-face` local) | Idem SEC-06: sin transferencia de IP a terceros, sin dependencia externa en tiempo de ejecución. |
-| i18n | **vue-i18n**, `es` + `en` | D-04. Cierra DT-18. |
+| i18n | **Módulo propio tipado** (`ui/i18n`), `es` + `en`, con `Intl` para plurales y fechas | D-04, D-25. Cierra DT-18. El catálogo inglés se comprueba contra el español en compilación. |
 | PWA | **vite-plugin-pwa** (Workbox), estrategia *precache* del shell | D-05. Cierra DT-17. |
 | Tests unitarios | **Vitest** + `@vue/test-utils` | Sustituye Karma/PhantomJS (ambos muertos). |
 | Tests e2e | **Playwright** | Sustituye Nightwatch/Selenium. Cubre también accesibilidad (`@axe-core/playwright`). |
@@ -253,7 +253,7 @@ pequeño y el margen entre juego óptimo humano y automatizado, estrecho.
 | Reglas de autorización en control de versiones | Migraciones SQL con RLS (o reglas del proveedor) versionadas en `infra/` | SEC-02, DT-05 |
 | Lockfile versionado | Eliminar `package-lock.json` de `.gitignore` | SEC-04, DT-04 |
 | SBOM | CycloneDX generado en cada build y adjunto a la release | SEC-05, DR-07 |
-| SCA | `npm audit` + OSV-Scanner en CI; Renovate para actualizaciones automatizadas | SEC-05 |
+| SCA | `pnpm audit --audit-level=high` en CI (**ya activo**, D-26); OSV-Scanner y Renovate en F5 | SEC-05 |
 | CSP y cabeceras | `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` como configuración de hosting versionada | SEC-07 |
 | Sin recursos de terceros | Fuentes e iconos autohospedados | SEC-06 |
 | Source maps | Generados pero **no publicados**; subidos al capturador de errores | SEC-08 |
@@ -407,7 +407,8 @@ antes de que exista backend alguno. Esto tiene tres efectos:
 push a main / pull request
   ├── check: lint · formato · contraste · tipos · tests (cobertura, contrato) · build
   └── e2e + a11y (axe, ambos temas) sobre la build del paso anterior
-F5 añade:  SCA (npm audit + OSV) + SBOM (CycloneDX)
+Ya activo: pnpm audit (nivel alto) en check (D-26)
+F5 añade:  OSV-Scanner + SBOM (CycloneDX)
 F2.4 añade: deploy a Cloudflare Pages en main (integración Git nativa o Direct Upload; se decide allí)
 ```
 

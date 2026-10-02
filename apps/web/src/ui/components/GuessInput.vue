@@ -3,7 +3,7 @@ import { validateGuess } from '@bnc/domain'
 import type { GuessRejection, Level } from '@bnc/domain'
 import { computed, ref, watch } from 'vue'
 import { usePreferencesStore } from '../../application/preferences-store'
-import { t } from '../strings'
+import { useT } from '../i18n'
 
 /**
  * Entrada del intento (D-06).
@@ -20,6 +20,7 @@ import { t } from '../strings'
 const props = defineProps<{ level: Level; disabled?: boolean }>()
 const emit = defineEmits<{ submit: [value: string] }>()
 const prefs = usePreferencesStore()
+const t = useT()
 
 const digits = ref<string[]>(Array.from({ length: props.level }, () => ''))
 const inputs = ref<HTMLInputElement[]>([])
@@ -53,8 +54,8 @@ const repeatedIdx = computed(() => {
 })
 // Repetidos se avisan en cuanto ocurren; "incompleto" solo tras intentar enviar.
 const message = computed(() => {
-  if (repeatedIdx.value.size > 0) return t.play.invalid['repeated']
-  if (touched.value && rejection.value) return t.play.invalid[rejection.value]
+  if (repeatedIdx.value.size > 0) return t.value.play.invalid['repeated']
+  if (touched.value && rejection.value) return t.value.play.invalid[rejection.value]
   return ''
 })
 

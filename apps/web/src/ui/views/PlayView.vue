@@ -4,10 +4,11 @@ import { useRouter } from 'vue-router'
 import { useGameStore } from '../../application/game-store'
 import AttemptList from '../components/AttemptList.vue'
 import GuessInput from '../components/GuessInput.vue'
-import { t } from '../strings'
+import { useT } from '../i18n'
 
 const router = useRouter()
 const game = useGameStore()
+const t = useT()
 const input = ref<InstanceType<typeof GuessInput> | null>(null)
 const playAgainBtn = ref<HTMLButtonElement | null>(null)
 
@@ -16,7 +17,7 @@ const announcement = ref('')
 
 const feedback = computed(() => {
   const o = game.lastOutcome
-  return o?.kind === 'invalid' ? (t.play.invalid[o.reason] ?? '') : ''
+  return o?.kind === 'invalid' ? (t.value.play.invalid[o.reason] ?? '') : ''
 })
 
 const elapsed = computed(() => {
@@ -38,7 +39,9 @@ async function onSubmit(value: string) {
   const outcome = await game.submit(value)
   if (outcome.kind !== 'evaluated') return
   const { ordinal, bulls, cows } = outcome.attempt
-  announcement.value = outcome.solved ? t.play.won(ordinal) : t.play.announce(ordinal, bulls, cows)
+  announcement.value = outcome.solved
+    ? t.value.play.won(ordinal)
+    : t.value.play.announce(ordinal, bulls, cows)
   if (!outcome.solved) input.value?.reset()
 }
 

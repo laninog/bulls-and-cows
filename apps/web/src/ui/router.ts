@@ -1,6 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useGameStore } from '../application/game-store'
-import { t } from './strings'
+import type { Messages } from './i18n'
+
+export type TitleKey = keyof Messages['titles']
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    /** Clave del título de la vista (WCAG 2.4.2); App lo aplica en el idioma activo. */
+    titleKey?: TitleKey
+  }
+}
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -9,13 +18,13 @@ export const router = createRouter({
       path: '/',
       name: 'home',
       component: () => import('./views/HomeView.vue'),
-      meta: { title: t.titles['home'] },
+      meta: { titleKey: 'home' },
     },
     {
       path: '/play',
       name: 'play',
       component: () => import('./views/PlayView.vue'),
-      meta: { title: t.titles['play'] },
+      meta: { titleKey: 'play' },
       // DT-09: no se entra a jugar sin partida. Se intenta reanudar; si no, a inicio.
       beforeEnter: async () => ((await useGameStore().resume()) ? true : { name: 'home' }),
     },
@@ -23,14 +32,20 @@ export const router = createRouter({
       path: '/history',
       name: 'history',
       component: () => import('./views/HistoryView.vue'),
-      meta: { title: t.titles['history'] },
+      meta: { titleKey: 'history' },
+    },
+    {
+      path: '/rules',
+      name: 'rules',
+      component: () => import('./views/RulesView.vue'),
+      meta: { titleKey: 'rules' },
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('./views/SettingsView.vue'),
+      meta: { titleKey: 'settings' },
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
-})
-
-// WCAG 2.4.2: cada vista tiene un título propio.
-router.afterEach((to) => {
-  const title = typeof to.meta['title'] === 'string' ? to.meta['title'] : null
-  document.title = title ? `${title} · ${t.appName}` : t.appName
 })

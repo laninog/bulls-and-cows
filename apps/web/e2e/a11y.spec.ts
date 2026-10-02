@@ -35,6 +35,18 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expectNoViolations(page)
     })
 
+    test('reglas y ajustes, en español y en inglés', async ({ page }) => {
+      for (const path of ['/rules', '/settings']) {
+        await page.goto(path)
+        await expectNoViolations(page)
+      }
+      await page.getByTestId('locale-en').check()
+      for (const path of ['/rules', '/settings']) {
+        await page.goto(path)
+        await expectNoViolations(page)
+      }
+    })
+
     test('historial con partidas', async ({ page, isMobile }) => {
       await startGame(page)
       await page.getByRole('button', { name: 'Abandonar' }).click()
