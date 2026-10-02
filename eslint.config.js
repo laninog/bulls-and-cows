@@ -42,6 +42,10 @@ export default tseslint.config(
     },
   },
   {
+    files: ['**/*.test.ts', '**/*.contract.ts', '**/test-services.ts', 'apps/web/e2e/**'],
+    rules: { '@typescript-eslint/no-non-null-assertion': 'off' },
+  },
+  {
     // El Worker sí puede emitir logs estructurados de error, nunca de info.
     files: ['apps/api/src/**/*.ts'],
     rules: { 'no-console': ['error', { allow: ['error', 'warn'] }] },

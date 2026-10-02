@@ -42,7 +42,16 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov'],
       include: ['packages/*/src/**', 'apps/*/src/**'],
-      exclude: ['**/*.test.ts', '**/*.d.ts', 'apps/web/src/main.ts'],
+      exclude: [
+        '**/*.test.ts',
+        '**/*.d.ts',
+        '**/*.contract.ts',
+        '**/test-services.ts',
+        // Raíces de composición: sin lógica, cubiertas por los e2e.
+        'apps/web/src/main.ts',
+        'apps/web/src/ui/router.ts',
+        'apps/web/src/application/local-services.ts',
+      ],
       thresholds: {
         // Global
         lines: 80,

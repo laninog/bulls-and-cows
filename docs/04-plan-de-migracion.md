@@ -145,6 +145,15 @@ DT-17, DT-18, SEC-06.
 > Pages como producto autónomo. Merece la pena hacerlo: valida el despliegue y
 > el rendimiento reales mucho antes de que haya backend que depurar.
 
+**Troceado de F2** (decidido al arrancar la fase, por el riesgo de desborde):
+
+| Sub-hito | Contenido | Estado |
+|---|---|---|
+| **F2.1** Jugable sin estilo | Puertos, adaptador local (IndexedDB vía `idb`), adaptador en memoria, stores Pinia, router con guards, vistas en HTML semántico, entrada numérica directa, identidad de invitado, reloj inyectado | **Entregado 2026-09-11.** 96 tests (53 en web: contrato ×2 almacenes, stores, componentes, vistas); cobertura global 97 % líneas / 87 % ramas; 5 e2e ×2 navegadores, incluida partida completa leyendo el secreto desde IndexedDB, reanudación tras recarga y abandono. |
+| **F2.2** Sistema de diseño y accesibilidad | Tokens CSS, selectores `+/−` alternativos, foco, teclado, `aria`, responsive, `axe` | pendiente |
+| **F2.3** Contenido | i18n `es`/`en`, reglas, ajustes | pendiente (las cadenas ya están centralizadas en `ui/strings.ts`) |
+| **F2.4** PWA y publicación | Manifiesto, service worker, Lighthouse, Cloudflare Pages | pendiente |
+
 ---
 
 ### F3 — Persistencia remota

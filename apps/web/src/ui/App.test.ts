@@ -1,11 +1,16 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { useSessionStore } from '../application/session-store'
 import App from './App.vue'
+import { setupView } from './test-utils'
 
 describe('App', () => {
-  it('renderiza el título y los niveles del dominio', () => {
-    const wrapper = mount(App)
-    expect(wrapper.get('h1').text()).toBe('Bulls and Cows')
-    expect(wrapper.get('[data-testid="levels"]').text()).toContain('3, 4, 5, 6')
+  it('muestra cabecera, navegación y carga la sesión', async () => {
+    const { router } = setupView()
+    const w = mount(App, { global: { plugins: [router] } })
+    await flushPromises()
+    expect(w.get('h1').text()).toBe('Bulls and Cows')
+    expect(w.findAll('nav a').map((a) => a.text())).toEqual(['Inicio', 'Historial'])
+    expect(useSessionStore().session?.kind).toBe('guest')
   })
 })

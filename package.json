@@ -2,8 +2,8 @@
   "name": "bulls-and-cows",
   "version": "2.0.0-dev",
   "private": true,
-  "description": "Bulls and Cows — juego web (Vue 3 + Cloudflare Workers)",
-  "author": "Alejandro Niño <5848013+laninog@users.noreply.github.com>",
+  "description": "Bulls and Cows \u2014 juego web (Vue 3 + Cloudflare Workers)",
+  "author": "Alejandro Ni\u00f1o <5848013+laninog@users.noreply.github.com>",
   "license": "MIT",
   "packageManager": "pnpm@10.28.0",
   "engines": {
@@ -20,6 +20,7 @@
     "test:e2e": "pnpm --filter @bnc/web test:e2e",
     "build": "pnpm -r --if-present build",
     "dev": "pnpm --filter @bnc/web dev",
+    "dev:lan": "pnpm --filter @bnc/web dev:lan",
     "dev:api": "pnpm --filter @bnc/api dev",
     "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm build",
     "test:coverage": "vitest run --coverage"

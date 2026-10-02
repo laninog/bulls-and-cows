@@ -5,21 +5,28 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:lan": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
+    "preview:lan": "vite preview --host",
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "test:e2e": "playwright test"
   },
   "dependencies": {
     "@bnc/contracts": "workspace:*",
     "@bnc/domain": "workspace:*",
-    "vue": "^3.5.42"
+    "idb": "^8.0.3",
+    "pinia": "^4.0.3",
+    "vue": "^3.5.42",
+    "vue-router": "^5.3.1"
   },
   "devDependencies": {
+    "@pinia/testing": "^2.0.1",
     "@playwright/test": "^1.63.0",
     "@types/node": "^22.20.2",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/test-utils": "^2.5.0",
+    "fake-indexeddb": "^6.2.5",
     "vite": "^8.3.0",
     "vue-tsc": "^3.3.11"
   }
