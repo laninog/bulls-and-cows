@@ -4,6 +4,8 @@ import { createLocalServices } from './application/local-services'
 import { provideServices } from './application/services'
 import App from './ui/App.vue'
 import { router } from './ui/router'
+import './ui/styles/tokens.css'
+import './ui/styles/base.css'
 
 provideServices(createLocalServices())
 

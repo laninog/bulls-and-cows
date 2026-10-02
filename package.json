@@ -22,8 +22,9 @@
     "dev": "pnpm --filter @bnc/web dev",
     "dev:lan": "pnpm --filter @bnc/web dev:lan",
     "dev:api": "pnpm --filter @bnc/api dev",
-    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm build",
-    "test:coverage": "vitest run --coverage"
+    "check": "pnpm lint && pnpm format:check && pnpm check:contrast && pnpm typecheck && pnpm test && pnpm build",
+    "test:coverage": "vitest run --coverage",
+    "check:contrast": "node scripts/check-contrast.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

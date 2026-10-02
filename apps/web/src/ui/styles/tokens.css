@@ -1,0 +1,93 @@
+/*
+ * Tokens de diseño. Única fuente de verdad de color, tipografía y espaciado.
+ *
+ * Identidad (D-19): índigo #3f51b5 del original como marca; naranja del icono
+ * para las cows. El tema sigue la preferencia del sistema (D-20).
+ *
+ * El contraste de cada par texto/fondo y de los componentes de interfaz se
+ * verifica en CI con scripts/check-contrast.mjs (WCAG 2.2 AA).
+ */
+:root {
+  color-scheme: light dark;
+
+  /* Color — tema claro */
+  --color-bg: #f5f6fb;
+  --color-surface: #ffffff;
+  --color-surface-2: #eceef8;
+  --color-text: #1a1d33;
+  --color-text-muted: #4c5274;
+  --color-border: #d6d9eb;
+  --color-border-strong: #7a80a6;
+  --color-accent: #3f51b5;
+  --color-accent-hover: #303f9f;
+  --color-accent-contrast: #ffffff;
+  --color-focus: #3f51b5;
+  --color-bull-bg: #e8eaf6;
+  --color-bull-fg: #283593;
+  --color-cow-bg: #fde8dd;
+  --color-cow-fg: #8a3a12;
+  --color-danger: #b3261e;
+
+  /* Tipografía */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-digit: clamp(1.75rem, 6vw, 2.25rem);
+
+  /* Espaciado (escala de 4px) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+
+  /* Forma */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-full: 999px;
+  --shadow-1: 0 1px 2px rgb(16 18 30 / 0.06), 0 2px 8px rgb(16 18 30 / 0.06);
+
+  /* Interacción */
+  --target-min: 2.75rem; /* 44px: WCAG 2.5.8 holgado */
+  --focus-ring: 0 0 0 3px var(--color-focus);
+  --transition: 150ms ease;
+
+  /* Layout */
+  --content-max: 64rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Color — tema oscuro */
+    --color-bg: #10121e;
+    --color-surface: #191c2c;
+    --color-surface-2: #22263a;
+    --color-text: #e7e9f6;
+    --color-text-muted: #a8adcb;
+    --color-border: #2f3452;
+    --color-border-strong: #7d84ad;
+    --color-accent: #8c9eff;
+    --color-accent-hover: #a9b6ff;
+    --color-accent-contrast: #10121e;
+    --color-focus: #a9b6ff;
+    --color-bull-bg: #262d5e;
+    --color-bull-fg: #c8cdf0;
+    --color-cow-bg: #46220f;
+    --color-cow-fg: #ffc6a6;
+    --color-danger: #ff8f86;
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4), 0 2px 8px rgb(0 0 0 / 0.3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: 0ms;
+  }
+}

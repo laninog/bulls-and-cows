@@ -71,3 +71,38 @@ describe('PlayView', () => {
     expect(env.router.currentRoute.value.name).toBe('home')
   })
 })
+
+describe('PlayView · accesibilidad', () => {
+  it('anuncia el resultado de cada intento en la región viva y el foco va a "Jugar otra vez" al ganar', async () => {
+    const env = setupView()
+    const game = useGameStore()
+    await game.start(3)
+    const secret = await env.secretOf(game.current!.id)
+    const w = mount(PlayView, { global: { plugins: [env.router] }, attachTo: document.body })
+    const announcer = () => w.get('[data-testid="announcer"]').text()
+    expect(w.get('[data-testid="announcer"]').attributes('role')).toBe('status')
+    expect(announcer()).toBe('')
+
+    await typeAll(w, secret === '012' ? '345' : '012')
+    expect(announcer()).toMatch(/^Intento 1: \d bulls? y \d cows?\.$/)
+
+    env.clock.now += 65_000
+    await typeAll(w, secret)
+    expect(announcer()).toBe('¡Has ganado en 2 intentos!')
+    expect(w.get('[data-testid="won"]').text()).toContain('Tiempo: 1:05')
+    await flushPromises()
+    expect(document.activeElement?.textContent?.trim()).toBe('Jugar otra vez')
+    w.unmount()
+  })
+
+  it('tras un intento fallido el foco vuelve al primer dígito', async () => {
+    const env = setupView()
+    const game = useGameStore()
+    await game.start(3)
+    const secret = await env.secretOf(game.current!.id)
+    const w = mount(PlayView, { global: { plugins: [env.router] }, attachTo: document.body })
+    await typeAll(w, secret === '012' ? '345' : '012')
+    expect(document.activeElement).toBe(w.get('[data-testid="digit-0"]').element)
+    w.unmount()
+  })
+})

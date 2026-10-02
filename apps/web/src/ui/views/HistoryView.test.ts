@@ -27,5 +27,12 @@ describe('HistoryView', () => {
     expect(rows[1]!.text()).toContain('Ganada')
     expect(rows[1]!.text()).toContain('1 intento')
     expect(rows[1]!.text()).toContain('1:05')
+
+    // Versión móvil: mismas partidas, mismo orden
+    const cards = w2.get('[data-testid="history-cards"]').findAll('li')
+    expect(cards).toHaveLength(2)
+    expect(cards[1]!.text()).toContain('Ganada')
+    expect(cards[1]!.text()).toContain('Nivel 3')
+    expect(cards[1]!.text()).toContain('1:05')
   })
 })

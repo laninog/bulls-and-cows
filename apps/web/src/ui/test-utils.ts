@@ -1,10 +1,10 @@
 import { createPinia, setActivePinia } from 'pinia'
-import { defineComponent } from 'vue'
+import { defineComponent, h } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { provideServices } from '../application/services'
 import { createTestServices } from '../application/test-services'
 
-const Stub = defineComponent({ template: '<div />' })
+const Stub = defineComponent({ render: () => h('h2', 'stub') })
 
 /** Entorno de test para vistas: pinia limpio, servicios en memoria y router en memoria. */
 export function setupView() {

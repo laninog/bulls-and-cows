@@ -42,6 +42,12 @@ export default tseslint.config(
     },
   },
   {
+    // Scripts de verificación: Node, y su salida por consola ES el resultado.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: globals.node },
+    rules: { 'no-console': 'off' },
+  },
+  {
     files: ['**/*.test.ts', '**/*.contract.ts', '**/test-services.ts', 'apps/web/e2e/**'],
     rules: { '@typescript-eslint/no-non-null-assertion': 'off' },
   },
