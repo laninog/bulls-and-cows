@@ -263,6 +263,11 @@ D-08.
 
 ### F6 — Retirada del legacy
 
+> **Estado 2026-10-03: retirada hecha (D-31).** El propietario eliminó el proyecto
+> Firebase y su proyecto GCP: Firebase Hosting deja de servir la versión legacy y
+> las credenciales expuestas en el histórico (SEC-01) quedan sin efecto. Pendientes
+> la release `v2.0.0` y la documentación final, que se harán al cerrar F5.
+
 **Entregables**
 
 - Corte de tráfico al nuevo hosting.
