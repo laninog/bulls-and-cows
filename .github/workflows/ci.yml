@@ -121,12 +121,22 @@ jobs:
       - name: comprobación tras el despliegue
         env:
           URL: ${{ steps.deploy.outputs.url }}
-        # Un subdominio workers.dev recién creado puede tardar unos minutos en resolver.
+        # La nueva versión tarda unos segundos en propagarse por la red de Cloudflare (y un subdominio
+        # workers.dev recién creado, algo más): se reintenta hasta que /api/health sirva este commit.
         run: |
-          body=$(curl -sSf --retry 10 --retry-delay 15 --retry-all-errors "$URL/api/health") || {
-            echo "::error title=comprobación::$URL/api/health no responde"; exit 1; }
-          echo "$body"
-          echo "$body" | grep -q "\"version\":\"${GITHUB_SHA::7}\"" || { echo "::error::La versión desplegada no coincide"; exit 1; }
+          expected="\"version\":\"${GITHUB_SHA::7}\""
+          body=""
+          for i in $(seq 1 24); do
+            body=$(curl -sS --max-time 10 "$URL/api/health" 2>&1 || true)
+            if grep -q "$expected" <<<"$body"; then
+              echo "OK en el intento $i: $body"
+              exit 0
+            fi
+            echo "intento $i: ${body:-sin respuesta}"
+            sleep 5
+          done
+          echo "::error title=comprobación::$URL/api/health no sirve ${GITHUB_SHA::7} tras 2 minutos. Última respuesta: ${body:-ninguna}"
+          exit 1
 
   # Previsualización por PR (solo PRs del propio repositorio: los forks no tienen acceso a los secretos).
   preview:
