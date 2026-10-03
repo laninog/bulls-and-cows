@@ -12,6 +12,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# `shell: bash` explícito activa `-o pipefail`: sin él, `cmd | tee` oculta el fallo de `cmd`.
+defaults:
+  run:
+    shell: bash
+
 jobs:
   check:
     name: lint · formato · contraste · tipos · tests · build
@@ -102,13 +107,24 @@ jobs:
           WRANGLER_SEND_METRICS: 'false'
         run: |
           test -f ../web/dist/.assetsignore || { echo "::error::Falta .assetsignore en la build"; exit 1; }
-          pnpm exec wrangler deploy --var "APP_VERSION:${GITHUB_SHA::7}" | tee deploy.log
-          url=$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          if ! pnpm exec wrangler deploy --var "APP_VERSION:${GITHUB_SHA::7}" 2>&1 | tee deploy.log; then
+            bash ../../scripts/wrangler-errors.sh deploy.log "wrangler deploy"
+            exit 1
+          fi
+          url=$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' deploy.log | head -1 || true)
+          if [ -z "$url" ]; then
+            echo "::error title=wrangler deploy::Desplegado, pero sin URL workers.dev en la salida. Comprueba en Cloudflare que el subdominio workers.dev está registrado y la ruta workers.dev activa para el Worker."
+            exit 1
+          fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "### Producción: $url" >> "$GITHUB_STEP_SUMMARY"
       - name: comprobación tras el despliegue
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        # Un subdominio workers.dev recién creado puede tardar unos minutos en resolver.
         run: |
-          body=$(curl -sf --retry 5 --retry-delay 3 "${{ steps.deploy.outputs.url }}/api/health")
+          body=$(curl -sSf --retry 10 --retry-delay 15 --retry-all-errors "$URL/api/health") || {
+            echo "::error title=comprobación::$URL/api/health no responde"; exit 1; }
           echo "$body"
           echo "$body" | grep -q "\"version\":\"${GITHUB_SHA::7}\"" || { echo "::error::La versión desplegada no coincide"; exit 1; }
 
@@ -138,8 +154,11 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           WRANGLER_SEND_METRICS: 'false'
         run: |
-          pnpm exec wrangler versions upload --preview-alias "pr-${{ github.event.number }}" \
-            --var "APP_VERSION:pr-${{ github.event.number }}-${GITHUB_SHA::7}" | tee upload.log
+          if ! pnpm exec wrangler versions upload --preview-alias "pr-${{ github.event.number }}" \
+            --var "APP_VERSION:pr-${{ github.event.number }}-${GITHUB_SHA::7}" 2>&1 | tee upload.log; then
+            bash ../../scripts/wrangler-errors.sh upload.log "wrangler versions upload"
+            exit 1
+          fi
           {
             echo "### Previsualización del PR #${{ github.event.number }}"
             grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' upload.log | sort -u | sed 's/^/- /'
