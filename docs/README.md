@@ -40,7 +40,7 @@ está. Las decisiones y propuestas viven en 00, 03 y 04.
 ## Estado del análisis
 
 Análisis realizado por lectura estática del código en `master`
-(`b2f9c52`). **No se ha ejecutado la aplicación**: la cadena de build es de
+(`460b871`). **No se ha ejecutado la aplicación**: la cadena de build es de
 2017 y no se ha intentado instalar dependencias. Todo hallazgo marcado
 *(no verificado en ejecución)* requiere confirmación empírica antes de darse
 por cierto.

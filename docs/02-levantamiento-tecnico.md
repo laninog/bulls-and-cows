@@ -1,6 +1,6 @@
 # Levantamiento técnico — Bulls and Cows
 
-> Versión 1 · Análisis estático del código en `master` (`b2f9c52`), clonado de
+> Versión 1 · Análisis estático del código en `master` (`460b871`), clonado de
 > `github.com/laninog/bulls-and-cows`. Tag más reciente: `v1.0.0-alpha`.
 > La aplicación **no se ha ejecutado**; no se ha intentado `npm install`.
 

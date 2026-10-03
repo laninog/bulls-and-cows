@@ -1,6 +1,6 @@
 # Levantamiento funcional — Bulls and Cows
 
-> Versión 1 · Descripción del comportamiento **actual** del código en `master` (`b2f9c52`).
+> Versión 1 · Descripción del comportamiento **actual** del código en `master` (`460b871`).
 > No incluye propuestas de cambio.
 
 ---

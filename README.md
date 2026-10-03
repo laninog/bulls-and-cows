@@ -39,6 +39,8 @@ pnpm test:e2e         # Playwright contra el Worker real (requiere `pnpm build`)
 
 ## Despliegue
 
+Producción: **https://bulls-and-cows.gameslab.workers.dev**
+
 GitHub Actions despliega a Cloudflare **solo desde `main` y solo si pasan
 `check` y `e2e`**, publicando exactamente la build que pasó las pruebas. Cada PR
 del propio repositorio recibe una URL de previsualización (`pr-<n>`).
@@ -46,15 +48,20 @@ del propio repositorio recibe una URL de previsualización (`pr-<n>`).
 Configuración, una sola vez:
 
 1. **Token de API** — Cloudflare → _My Profile → API Tokens → Create Token_ →
-   plantilla **Edit Cloudflare Workers**. Limítalo a tu cuenta.
+   plantilla **Edit Cloudflare Workers**. Limítalo a tu cuenta y quita los
+   permisos que no use el despliegue (el Worker solo necesita _Workers Scripts: Edit_
+   más las lecturas de cuenta y usuario).
 2. **Account ID** — panel de Cloudflare → _Workers & Pages_, columna derecha.
 3. **Subdominio `workers.dev`** — _Workers & Pages_ → elige uno si aún no lo
-   tienes (solo la primera vez en la cuenta).
+   tienes (solo la primera vez en la cuenta). Forma parte de la URL pública:
+   mejor un nombre neutro que uno personal.
 4. **Secretos en GitHub** — _Settings → Secrets and variables → Actions →
    New repository secret_: `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID`.
 
 El siguiente push a `main` despliega en `https://bulls-and-cows.<subdominio>.workers.dev`.
-El job comprueba después que `/api/health` responde con el commit desplegado.
+El job comprueba después que `/api/health` responde con el commit desplegado
+(reintenta hasta 2 minutos mientras la versión se propaga). Si Wrangler falla, el
+error aparece como anotación en el resumen del run.
 
 ## Principios que impone la CI
 
