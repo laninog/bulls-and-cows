@@ -1,240 +1,273 @@
 <script setup lang="ts">
 import { validateGuess } from '@bnc/domain'
 import type { GuessRejection, Level } from '@bnc/domain'
-import { computed, ref, watch } from 'vue'
-import { usePreferencesStore } from '../../application/preferences-store'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useT } from '../i18n'
 
 /**
- * Entrada del intento (D-06).
+ * Entrada del intento (D-06, revisada en D-30).
  *
- * Primaria: un campo por dígito, teclado físico o numérico del sistema, con
- * auto-avance, retroceso, flechas laterales, pegado distribuido y Enter.
- * Flechas arriba/abajo suben y bajan el dígito (paridad de teclado con los
- * selectores).
+ * Teclado numérico propio en todos los dispositivos: no hay ningún campo de
+ * texto, así que el teclado del sistema no aparece nunca en el móvil. Las
+ * casillas solo muestran el intento; tocar una la selecciona para cambiarla.
  *
- * Alternativa: selectores +/− por dígito, cíclicos como en el original. Son
- * botones fuera del orden de tabulación —el teclado ya tiene las flechas— pero
- * presentes para puntero y lectores de pantalla táctiles.
+ * Con teclado físico, desde cualquier punto de la partida: 0-9 escriben,
+ * Retroceso borra, ← → cambian de casilla, Enter juega y pegar distribuye.
+ *
+ * Los dígitos ya usados se atenúan y no se aceptan: un intento con repetidos
+ * no puede llegar a componerse. Se usa `aria-disabled` y no `disabled` para
+ * que el foco no se pierda al pulsar una tecla que pasa a estar usada.
+ *
+ * Tocar o hacer clic en el teclado no mueve el foco (`mousedown.prevent`), como
+ * en cualquier teclado en pantalla: así Enter en el teclado físico sigue jugando
+ * el intento. Con Tab sí se llega a cada tecla.
  */
 const props = defineProps<{ level: Level; disabled?: boolean }>()
 const emit = defineEmits<{ submit: [value: string] }>()
-const prefs = usePreferencesStore()
 const t = useT()
 
-const digits = ref<string[]>(Array.from({ length: props.level }, () => ''))
-const inputs = ref<HTMLInputElement[]>([])
-const touched = ref(false)
+const KEY_ROWS = [
+  ['1', '2', '3', '4', '5'],
+  ['6', '7', '8', '9', '0'],
+] as const
+
+const empty = (n: number) => Array.from({ length: n }, () => '')
+const digits = ref<string[]>(empty(props.level))
+/** Casilla que ocupará el siguiente dígito; `level` = intento completo, sin casilla activa. */
+const cursor = ref(0)
+const rejection = ref<GuessRejection | null>(null)
+/** Texto para lectores de pantalla: el intento tal como queda tras cada pulsación. */
+const spoken = ref('')
+
+const value = computed(() => digits.value.join(''))
+const complete = computed(() => digits.value.every((d) => d !== ''))
+const used = computed(() => new Set(digits.value.filter(Boolean)))
+const message = computed(() => (rejection.value ? t.value.play.invalid[rejection.value] : ''))
 
 watch(
   () => props.level,
   (n) => {
-    digits.value = Array.from({ length: n }, () => '')
-    touched.value = false
+    digits.value = empty(n)
+    cursor.value = 0
+    rejection.value = null
+    spoken.value = ''
   },
 )
 
-const stepper = computed(() => prefs.inputMode === 'stepper')
-const value = computed(() => digits.value.join(''))
-const validation = computed(() => validateGuess(value.value, props.level))
-const complete = computed(() => digits.value.every((d) => d !== ''))
-const rejection = computed<GuessRejection | null>(() =>
-  validation.value.ok ? null : validation.value.reason,
-)
-const repeatedIdx = computed(() => {
-  const seen = new Map<string, number>()
-  const dup = new Set<number>()
-  digits.value.forEach((d, i) => {
-    if (!d) return
-    const first = seen.get(d)
-    if (first !== undefined) dup.add(first).add(i)
-    else seen.set(d, i)
-  })
-  return dup
-})
-// Repetidos se avisan en cuanto ocurren; "incompleto" solo tras intentar enviar.
-const message = computed(() => {
-  if (repeatedIdx.value.size > 0) return t.value.play.invalid['repeated']
-  if (touched.value && rejection.value) return t.value.play.invalid[rejection.value]
-  return ''
-})
-
-function focusAt(i: number) {
-  const el = inputs.value[Math.max(0, Math.min(i, props.level - 1))]
-  el?.focus()
-  el?.select()
+function speak() {
+  spoken.value = t.value.play.composed(digits.value)
 }
 
-/** Paso cíclico 0-9. Desde vacío: +1 → 0, −1 → 9 (como los selectores del original). */
-function step(i: number, delta: 1 | -1) {
-  const cur = digits.value[i] ?? ''
-  const next = cur === '' ? (delta === 1 ? 0 : 9) : (Number(cur) + delta + 10) % 10
-  digits.value[i] = String(next)
+/** Siguiente casilla vacía tras `from`, dando la vuelta; `level` si no queda ninguna. */
+function nextEmpty(from: number): number {
+  const n = props.level
+  for (let k = 1; k <= n; k++) {
+    const i = (from + k) % n
+    if (!digits.value[i]) return i
+  }
+  return n
 }
 
-function onInput(i: number, e: Event) {
-  const el = e.target as HTMLInputElement
-  const raw = el.value.replace(/[^0-9]/g, '')
-  if (raw.length > 1) {
-    // Pegado o autocompletado: distribuir desde esta posición.
-    raw.split('').forEach((ch, k) => {
-      if (i + k < props.level) digits.value[i + k] = ch
-    })
-    el.value = digits.value[i] ?? ''
-    focusAt(i + raw.length)
+function press(d: string) {
+  if (props.disabled || cursor.value >= props.level) return
+  if (digits.value[cursor.value] === d) {
+    cursor.value = nextEmpty(cursor.value)
     return
   }
-  digits.value[i] = raw
-  el.value = raw
-  if (raw) focusAt(i + 1)
+  if (used.value.has(d)) {
+    rejection.value = 'repeated'
+    return
+  }
+  digits.value[cursor.value] = d
+  rejection.value = null
+  cursor.value = nextEmpty(cursor.value)
+  speak()
 }
 
-function onKeydown(i: number, e: KeyboardEvent) {
-  switch (e.key) {
-    case 'Backspace':
-      if (digits.value[i]) {
-        digits.value[i] = ''
-      } else if (i > 0) {
-        digits.value[i - 1] = ''
-        focusAt(i - 1)
-      }
-      break
-    case 'ArrowLeft':
-      focusAt(i - 1)
-      break
-    case 'ArrowRight':
-      focusAt(i + 1)
-      break
-    case 'ArrowUp':
-      step(i, 1)
-      break
-    case 'ArrowDown':
-      step(i, -1)
-      break
-    case 'Enter':
-      submit()
-      break
-    default:
-      return
-  }
-  e.preventDefault()
+function erase() {
+  if (props.disabled) return
+  const i =
+    cursor.value < props.level && digits.value[cursor.value] ? cursor.value : cursor.value - 1
+  if (i < 0) return
+  digits.value[i] = ''
+  cursor.value = i
+  rejection.value = null
+  speak()
+}
+
+function move(delta: -1 | 1) {
+  cursor.value = Math.max(0, Math.min(cursor.value + delta, props.level - 1))
+}
+
+function select(i: number) {
+  cursor.value = i
 }
 
 function submit() {
-  touched.value = true
-  if (!validation.value.ok || props.disabled) {
-    const firstEmpty = digits.value.findIndex((d) => d === '')
-    focusAt(firstEmpty === -1 ? Math.min(...repeatedIdx.value) : firstEmpty)
+  if (props.disabled) return
+  const v = validateGuess(value.value, props.level)
+  if (!v.ok) {
+    rejection.value = v.reason
     return
   }
   emit('submit', value.value)
 }
 
-function reset() {
-  digits.value = Array.from({ length: props.level }, () => '')
-  touched.value = false
-  focusAt(0)
+/** No interfiere con campos de texto ni con atajos del navegador o del sistema. */
+function ignorable(e: KeyboardEvent | ClipboardEvent): boolean {
+  if ('ctrlKey' in e && (e.ctrlKey || e.metaKey || e.altKey || e.isComposing)) return true
+  const target = e.target instanceof Element ? e.target : null
+  return !!target?.closest(
+    'input, textarea, select, [contenteditable]:not([contenteditable="false"])',
+  )
 }
 
-defineExpose({ reset, focus: () => focusAt(0) })
+function onKeydown(e: KeyboardEvent) {
+  if (e.defaultPrevented || ignorable(e)) return
+  if (/^[0-9]$/.test(e.key)) {
+    press(e.key)
+  } else if (e.key === 'Backspace' || e.key === 'Delete') {
+    erase()
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    move(e.key === 'ArrowLeft' ? -1 : 1)
+  } else if (e.key === 'Enter') {
+    // Enter sobre un botón o un enlace es su activación nativa (p. ej. una tecla enfocada con
+    // Tab), salvo en las casillas, que solo muestran el intento.
+    const target = e.target instanceof Element ? e.target : null
+    const control = target?.closest('button, a, summary, [role="button"]')
+    if (control && !control.hasAttribute('data-slot')) return
+    submit()
+  } else {
+    return
+  }
+  e.preventDefault()
+}
+
+function onPaste(e: ClipboardEvent) {
+  if (ignorable(e)) return
+  const pasted = (e.clipboardData?.getData('text') ?? '').replace(/[^0-9]/g, '')
+  if (!pasted) return
+  e.preventDefault()
+  for (const d of pasted) press(d)
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+  window.addEventListener('paste', onPaste)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('paste', onPaste)
+})
+
+function reset() {
+  digits.value = empty(props.level)
+  cursor.value = 0
+  rejection.value = null
+  spoken.value = ''
+}
+
+defineExpose({ reset })
 </script>
 
 <template>
-  <form class="guess" @submit.prevent="submit">
-    <div class="guess__head">
-      <!-- Título visual; el nombre accesible del grupo lo da <legend>. -->
-      <span class="guess__title" aria-hidden="true">{{ t.play.guessLegend }}</span>
+  <div class="guess">
+    <h3 id="guess-title" class="guess__title">{{ t.play.guessLegend }}</h3>
+
+    <!-- Casillas: fuera del orden de tabulación (con teclado, ← y →); tocar una la selecciona. -->
+    <div
+      class="slots"
+      role="group"
+      aria-labelledby="guess-title"
+      data-testid="digits"
+      :style="{ '--n': level }"
+    >
       <button
+        v-for="(d, i) in digits"
+        :key="i"
         type="button"
-        class="btn btn-ghost guess__mode"
-        :aria-pressed="stepper ? 'true' : 'false'"
-        data-testid="stepper-toggle"
-        @click="prefs.toggleInputMode()"
+        tabindex="-1"
+        class="slot"
+        data-slot
+        :aria-label="t.play.slot(i + 1, level, d)"
+        :aria-current="cursor === i ? 'true' : undefined"
+        :data-testid="`digit-${i}`"
+        @mousedown.prevent
+        @click="select(i)"
       >
-        {{ t.play.stepperMode }}
+        {{ d }}
       </button>
     </div>
 
-    <fieldset :disabled="disabled" class="guess__fieldset">
-      <legend class="visually-hidden">{{ t.play.guessLegend }}</legend>
+    <p
+      id="guess-message"
+      class="guess__message"
+      role="status"
+      aria-live="polite"
+      data-testid="guess-message"
+    >
+      {{ message }}
+    </p>
+    <p class="visually-hidden" aria-live="polite" data-testid="guess-spoken">{{ spoken }}</p>
 
-      <div class="digits" data-testid="digits" :style="{ '--n': level }">
-        <div v-for="(_, i) in digits" :key="i" class="digit">
-          <button
-            v-if="stepper"
-            type="button"
-            tabindex="-1"
-            class="step"
-            :aria-label="t.play.increment(i + 1)"
-            :data-testid="`inc-${i}`"
-            @click="step(i, 1)"
-          >
-            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-              <path
-                d="M8 4v8M4 8h8"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-          </button>
-          <input
-            :ref="
-              (el) => {
-                if (el) inputs[i] = el as HTMLInputElement
-              }
-            "
-            class="digit__input"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]"
-            maxlength="1"
-            autocomplete="off"
-            :value="digits[i]"
-            :aria-label="t.play.digit(i + 1, level)"
-            :aria-invalid="repeatedIdx.has(i) ? 'true' : undefined"
-            :aria-describedby="message ? 'guess-message' : undefined"
-            :data-testid="`digit-${i}`"
-            :data-autofocus="i === 0 ? '' : undefined"
-            @input="onInput(i, $event)"
-            @keydown="onKeydown(i, $event)"
-            @focus="($event.target as HTMLInputElement).select()"
-          />
-          <button
-            v-if="stepper"
-            type="button"
-            tabindex="-1"
-            class="step"
-            :aria-label="t.play.decrement(i + 1)"
-            :data-testid="`dec-${i}`"
-            @click="step(i, -1)"
-          >
-            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-              <path d="M4 8h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <p
-        id="guess-message"
-        class="guess__message"
-        role="status"
-        aria-live="polite"
-        data-testid="guess-message"
-      >
-        {{ message }}
-      </p>
-
-      <button
-        type="submit"
-        class="btn btn-primary btn-block"
-        :disabled="disabled || !complete || !validation.ok"
-      >
-        {{ t.play.submit }}
-      </button>
-    </fieldset>
-  </form>
+    <div class="keypad" role="group" :aria-label="t.play.keypad" data-testid="keypad">
+      <template v-for="(row, r) in KEY_ROWS" :key="r">
+        <button
+          v-for="k in row"
+          :key="k"
+          type="button"
+          class="key"
+          :aria-disabled="used.has(k) ? 'true' : undefined"
+          :data-testid="`key-${k}`"
+          @mousedown.prevent
+          @click="press(k)"
+        >
+          {{ k }}
+        </button>
+        <button
+          v-if="r === 0"
+          type="button"
+          class="key key--action"
+          :aria-label="t.play.delete"
+          data-testid="key-delete"
+          @mousedown.prevent
+          @click="erase"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7 6-7Z M12 9.5l5 5 M17 9.5l-5 5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button
+          v-else
+          type="button"
+          class="key key--submit"
+          :aria-label="t.play.submit"
+          :aria-disabled="!complete || disabled ? 'true' : undefined"
+          data-testid="submit"
+          @mousedown.prevent
+          @click="submit"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M5 12.5l4.5 4.5L19 7.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </template>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -243,50 +276,21 @@ defineExpose({ reset, focus: () => focusAt(0) })
   gap: var(--space-3);
 }
 
-.guess__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
 .guess__title {
   font-size: var(--text-lg);
   font-weight: 700;
 }
 
-.guess__mode {
-  padding-inline: var(--space-3);
-  font-size: var(--text-sm);
-}
-
-.guess__fieldset {
-  display: grid;
-  gap: var(--space-4);
-  margin: 0;
-  padding: 0;
-  border: 0;
-  min-width: 0;
-}
-
-.guess__mode[aria-pressed='true'] {
-  color: var(--color-accent);
-  background: var(--color-surface-2);
-}
-
-.digits {
+.slots {
   display: grid;
   grid-template-columns: repeat(var(--n), minmax(0, 3.5rem));
   justify-content: center;
   gap: var(--space-2);
 }
 
-.digit {
+.slot {
   display: grid;
-  gap: var(--space-1);
-}
-
-.digit__input {
+  place-items: center;
   width: 100%;
   aspect-ratio: 4 / 5;
   min-height: 3.5rem;
@@ -294,44 +298,19 @@ defineExpose({ reset, focus: () => focusAt(0) })
   border: 2px solid var(--color-border-strong);
   border-radius: var(--radius-md);
   background: var(--color-surface);
+  color: var(--color-text);
   font-family: var(--font-mono);
   font-size: var(--text-digit);
   font-weight: 700;
-  text-align: center;
-  caret-color: var(--color-accent);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: border-color var(--transition);
 }
 
-.digit__input:focus-visible {
-  outline: none;
+.slot[aria-current='true'] {
   border-color: var(--color-accent);
-  box-shadow: var(--focus-ring);
-}
-
-.digit__input[aria-invalid='true'] {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
-}
-
-.step {
-  display: grid;
-  place-items: center;
-  min-height: var(--target-min);
-  padding: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-2);
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.step:hover {
-  border-color: var(--color-border-strong);
-}
-
-.step svg {
-  width: 1.125rem;
-  height: 1.125rem;
+  box-shadow: inset 0 -4px 0 var(--color-accent);
 }
 
 .guess__message {
@@ -340,5 +319,72 @@ defineExpose({ reset, focus: () => focusAt(0) })
   font-size: var(--text-sm);
   font-weight: 600;
   text-align: center;
+}
+
+/* Dos filas: 1-5 y borrar; 6-0 y jugar. La columna de acción es algo más ancha. */
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.4fr);
+  gap: var(--space-2);
+}
+
+.key {
+  display: grid;
+  place-items: center;
+  min-width: var(--target-min);
+  min-height: 3.25rem;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color var(--transition),
+    background-color var(--transition);
+}
+
+.key svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.key:hover:not([aria-disabled='true']) {
+  border-color: var(--color-accent);
+}
+
+.key:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Componente inactivo: exento del requisito de contraste (WCAG 1.4.3 y 1.4.11). */
+.key[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.key--submit {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+
+.key--submit:hover:not([aria-disabled='true']) {
+  border-color: var(--color-accent-hover);
+  background: var(--color-accent-hover);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .key:active:not([aria-disabled='true']) {
+    transform: scale(0.95);
+  }
 }
 </style>

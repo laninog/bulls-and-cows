@@ -1,165 +1,210 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it } from 'vitest'
-import { usePreferencesStore } from '../../application/preferences-store'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 import GuessInput from './GuessInput.vue'
 
 type W = ReturnType<typeof mount>
 
-async function type(w: W, i: number, v: string) {
-  const el = w.get(`[data-testid="digit-${i}"]`)
-  ;(el.element as HTMLInputElement).value = v
-  await el.trigger('input')
+const make = (level: 3 | 4 | 5 | 6, disabled = false) =>
+  mount(GuessInput, { props: { level, disabled }, attachTo: document.body })
+
+const slots = (w: W) => w.findAll('[data-testid^="digit-"]').map((s) => s.text())
+const current = (w: W) =>
+  w.findAll('[data-testid^="digit-"]').findIndex((s) => s.attributes('aria-current') === 'true')
+const tap = async (w: W, keys: string) => {
+  for (const k of keys) await w.get(`[data-testid="key-${k}"]`).trigger('click')
 }
-const values = (w: W) => w.findAll('input').map((i) => (i.element as HTMLInputElement).value)
-const make = (level: 3 | 4 | 5 | 6) =>
-  mount(GuessInput, { props: { level }, attachTo: document.body })
+/** Pulsación de teclado físico: el componente escucha en `window`. */
+const key = async (
+  k: string,
+  target: EventTarget = document.body,
+  init: KeyboardEventInit = {},
+) => {
+  const ev = new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true, ...init })
+  target.dispatchEvent(ev)
+  await nextTick()
+  return ev
+}
 
 describe('GuessInput', () => {
-  beforeEach(() => {
-    localStorage.clear()
-    setActivePinia(createPinia())
+  let w: W
+  beforeEach(() => setActivePinia(createPinia()))
+  afterEach(() => w?.unmount())
+
+  it('no hay campos de texto: el teclado del sistema no puede aparecer', () => {
+    w = make(4)
+    expect(w.findAll('input, textarea')).toHaveLength(0)
+    expect(w.findAll('[data-testid^="digit-"]')).toHaveLength(4)
+    expect(w.get('[data-testid="digit-0"]').attributes('aria-label')).toBe('Dígito 1 de 4: vacío')
+    expect(w.get('[data-testid="digit-0"]').attributes('tabindex')).toBe('-1')
+    expect(w.get('[data-testid="digits"]').attributes('aria-labelledby')).toBe('guess-title')
+    expect(w.get('[data-testid="keypad"]').attributes('aria-label')).toBe('Teclado numérico')
+    expect(w.findAll('[data-testid="keypad"] button')).toHaveLength(12)
+    expect(current(w)).toBe(0)
   })
 
-  it('renderiza un campo por dígito con etiqueta accesible y leyenda del grupo', () => {
-    const w = make(4)
-    expect(w.findAll('input')).toHaveLength(4)
-    expect(w.get('[data-testid="digit-0"]').attributes('aria-label')).toBe('Dígito 1 de 4')
-    expect(w.get('[data-testid="digit-0"]').attributes('data-autofocus')).toBeDefined()
-    // <legend> es el primer hijo del <fieldset>: da nombre al grupo
-    expect(w.get('fieldset').element.firstElementChild?.tagName).toBe('LEGEND')
-    w.unmount()
-  })
-
-  it('auto-avanza el foco al teclear y emite submit con el valor completo', async () => {
-    const w = make(3)
-    await type(w, 0, '4')
-    expect(document.activeElement).toBe(w.get('[data-testid="digit-1"]').element)
-    await type(w, 1, '7')
-    await type(w, 2, '1')
-    expect(w.get('button[type="submit"]').attributes('disabled')).toBeUndefined()
-    await w.get('form').trigger('submit')
+  it('el teclado propio compone el intento, anuncia cada cambio y envía', async () => {
+    w = make(3)
+    expect(w.get('[data-testid="submit"]').attributes('aria-disabled')).toBe('true')
+    await tap(w, '47')
+    expect(slots(w)).toEqual(['4', '7', ''])
+    expect(w.get('[data-testid="digit-1"]').attributes('aria-label')).toBe('Dígito 2 de 3: 7')
+    expect(w.get('[data-testid="guess-spoken"]').text()).toBe('4, 7, vacío')
+    await tap(w, '1')
+    expect(current(w)).toBe(-1)
+    expect(w.get('[data-testid="submit"]').attributes('aria-disabled')).toBeUndefined()
+    expect(w.get('[data-testid="submit"]').attributes('aria-label')).toBe('Jugar')
+    await w.get('[data-testid="submit"]').trigger('click')
     expect(w.emitted('submit')).toEqual([['471']])
-    w.unmount()
   })
 
-  it('marca repetidos como inválidos, enlaza el mensaje y deshabilita el envío', async () => {
-    const w = make(3)
-    await type(w, 0, '4')
-    await type(w, 1, '4')
-    expect(w.get('[data-testid="digit-0"]').attributes('aria-invalid')).toBe('true')
-    expect(w.get('[data-testid="digit-1"]').attributes('aria-invalid')).toBe('true')
-    expect(w.get('[data-testid="digit-0"]').attributes('aria-describedby')).toBe('guess-message')
+  it('los dígitos usados se atenúan y no se aceptan', async () => {
+    w = make(3)
+    await tap(w, '4')
+    expect(w.get('[data-testid="key-4"]').attributes('aria-disabled')).toBe('true')
+    expect(w.get('[data-testid="key-4"]').attributes('disabled')).toBeUndefined()
+    await tap(w, '4')
+    expect(slots(w)).toEqual(['4', '', ''])
     expect(w.get('[data-testid="guess-message"]').text()).toBe('No repitas dígitos.')
-    expect(w.get('button[type="submit"]').attributes('disabled')).toBeDefined()
-    w.unmount()
+    await tap(w, '5')
+    expect(w.get('[data-testid="guess-message"]').text()).toBe('')
   })
 
-  it('con repetidos, enviar con Enter lleva el foco al primer repetido', async () => {
-    const w = make(3)
-    await type(w, 0, '1')
-    await type(w, 1, '1')
-    await type(w, 2, '2')
-    await w.get('[data-testid="digit-2"]').trigger('keydown', { key: 'Enter' })
-    expect(w.emitted('submit')).toBeUndefined()
-    expect(document.activeElement).toBe(w.get('[data-testid="digit-0"]').element)
-    w.unmount()
+  it('tocar una casilla la selecciona para cambiar ese dígito', async () => {
+    w = make(3)
+    await tap(w, '123')
+    await w.get('[data-testid="digit-1"]').trigger('click')
+    expect(current(w)).toBe(1)
+    await tap(w, '9')
+    expect(slots(w)).toEqual(['1', '9', '3'])
+    expect(current(w)).toBe(-1)
+    // Pulsar el mismo dígito que ya ocupa la casilla no es un repetido
+    await w.get('[data-testid="digit-0"]').trigger('click')
+    await tap(w, '1')
+    expect(w.get('[data-testid="guess-message"]').text()).toBe('')
   })
 
-  it('distribuye un pegado de varios dígitos', async () => {
-    const w = make(4)
-    await type(w, 0, '1234')
-    expect(values(w)).toEqual(['1', '2', '3', '4'])
-    w.unmount()
+  it('borrar vacía la casilla activa o, si está vacía, la anterior', async () => {
+    w = make(3)
+    await tap(w, '56')
+    await w.get('[data-testid="key-delete"]').trigger('click')
+    expect(slots(w)).toEqual(['5', '', ''])
+    expect(current(w)).toBe(1)
+    await w.get('[data-testid="digit-0"]').trigger('click')
+    await w.get('[data-testid="key-delete"]').trigger('click')
+    expect(slots(w)).toEqual(['', '', ''])
+    await w.get('[data-testid="key-delete"]').trigger('click')
+    expect(slots(w)).toEqual(['', '', ''])
+    expect(w.get('[data-testid="key-delete"]').attributes('aria-label')).toBe('Borrar')
   })
 
-  it('Backspace borra el actual y, si está vacío, retrocede y borra el anterior', async () => {
-    const w = make(3)
-    await type(w, 0, '5')
-    await type(w, 1, '6')
-    await w.get('[data-testid="digit-1"]').trigger('keydown', { key: 'Backspace' })
-    expect(values(w)).toEqual(['5', '', ''])
-    await w.get('[data-testid="digit-1"]').trigger('keydown', { key: 'Backspace' })
-    expect(values(w)).toEqual(['', '', ''])
-    expect(document.activeElement).toBe(w.get('[data-testid="digit-0"]').element)
-    w.unmount()
+  it('tras rellenar una casilla intermedia, el cursor salta a la siguiente vacía', async () => {
+    w = make(4)
+    await w.get('[data-testid="digit-2"]').trigger('click')
+    await tap(w, '8')
+    expect(current(w)).toBe(3)
+    await tap(w, '9')
+    expect(current(w)).toBe(0)
   })
 
-  it('flechas laterales mueven el foco y Enter envía si es válido', async () => {
-    const w = make(3)
-    await type(w, 0, '1')
-    await type(w, 1, '2')
-    await type(w, 2, '3')
-    await w.get('[data-testid="digit-2"]').trigger('keydown', { key: 'ArrowLeft' })
-    expect(document.activeElement).toBe(w.get('[data-testid="digit-1"]').element)
-    await w.get('[data-testid="digit-1"]').trigger('keydown', { key: 'ArrowRight' })
-    expect(document.activeElement).toBe(w.get('[data-testid="digit-2"]').element)
-    await w.get('[data-testid="digit-2"]').trigger('keydown', { key: 'Enter' })
-    expect(w.emitted('submit')).toEqual([['123']])
-    w.unmount()
-  })
-
-  it('flechas arriba/abajo son cíclicas: vacío↑0, 9↑0, vacío↓9, 0↓9', async () => {
-    const w = make(3)
-    const d0 = w.get('[data-testid="digit-0"]')
-    await d0.trigger('keydown', { key: 'ArrowUp' })
-    expect(values(w)[0]).toBe('0')
-    await d0.trigger('keydown', { key: 'ArrowDown' })
-    expect(values(w)[0]).toBe('9')
-    await d0.trigger('keydown', { key: 'ArrowUp' })
-    expect(values(w)[0]).toBe('0')
-    const d1 = w.get('[data-testid="digit-1"]')
-    await d1.trigger('keydown', { key: 'ArrowDown' })
-    expect(values(w)[1]).toBe('9')
-    w.unmount()
-  })
-
-  it('otras teclas no se interceptan', async () => {
-    const w = make(3)
-    const ev = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
-    w.get('[data-testid="digit-0"]').element.dispatchEvent(ev)
-    expect(ev.defaultPrevented).toBe(false)
-    w.unmount()
-  })
-
-  it('modo selectores: el conmutador muestra los +/−, persiste y los botones funcionan', async () => {
-    const w = make(3)
-    expect(w.find('[data-testid="inc-0"]').exists()).toBe(false)
-    const toggle = w.get('[data-testid="stepper-toggle"]')
-    expect(toggle.attributes('aria-pressed')).toBe('false')
-    await toggle.trigger('click')
-    expect(toggle.attributes('aria-pressed')).toBe('true')
-    expect(usePreferencesStore().inputMode).toBe('stepper')
-
-    const inc = w.get('[data-testid="inc-1"]')
-    expect(inc.attributes('aria-label')).toBe('Aumentar dígito 2')
-    expect(inc.attributes('tabindex')).toBe('-1')
-    await inc.trigger('click')
-    await inc.trigger('click')
-    expect(values(w)[1]).toBe('1')
-    await w.get('[data-testid="dec-2"]').trigger('click')
-    expect(values(w)[2]).toBe('9')
-    w.unmount()
-  })
-
-  it('con un intento incompleto, enviar muestra el motivo, no emite y enfoca el primer vacío', async () => {
-    const w = make(3)
-    await type(w, 0, '1')
-    await w.get('[data-testid="digit-0"]').trigger('keydown', { key: 'Enter' })
+  it('teclado físico: dígitos, Retroceso, flechas, Enter y Supr', async () => {
+    w = make(3)
+    await key('1')
+    await key('2')
+    expect(slots(w)).toEqual(['1', '2', ''])
+    await key('Backspace')
+    expect(slots(w)).toEqual(['1', '', ''])
+    await key('Enter')
     expect(w.emitted('submit')).toBeUndefined()
     expect(w.get('[data-testid="guess-message"]').text()).toBe('Completa todos los dígitos.')
-    expect(document.activeElement).toBe(w.get('[data-testid="digit-1"]').element)
-    w.unmount()
+    await key('ArrowLeft')
+    await key('ArrowLeft')
+    expect(current(w)).toBe(0)
+    await key('ArrowRight')
+    await key('ArrowRight')
+    await key('ArrowRight')
+    expect(current(w)).toBe(2)
+    await key('2')
+    expect(current(w)).toBe(1)
+    await key('3')
+    expect(slots(w)).toEqual(['1', '3', '2'])
+    await key('Enter')
+    expect(w.emitted('submit')).toEqual([['132']])
+    await key('Delete')
+    expect(slots(w)).toEqual(['1', '3', ''])
+  })
+
+  it('no interfiere con campos de texto, atajos ni Enter sobre botones', async () => {
+    w = make(3)
+    const field = document.createElement('input')
+    document.body.append(field)
+    expect((await key('1', field)).defaultPrevented).toBe(false)
+    expect((await key('2', document.body, { ctrlKey: true })).defaultPrevented).toBe(false)
+    expect((await key('Tab')).defaultPrevented).toBe(false)
+    expect(slots(w)).toEqual(['', '', ''])
+    field.remove()
+
+    await tap(w, '123')
+    const keyBtn = w.get('[data-testid="key-5"]').element
+    expect((await key('Enter', keyBtn)).defaultPrevented).toBe(false)
+    expect(w.emitted('submit')).toBeUndefined()
+
+    // Las casillas no son controles para Enter: con una enfocada, Enter juega
+    expect((await key('Enter', w.get('[data-testid="digit-0"]').element)).defaultPrevented).toBe(
+      true,
+    )
+    expect(w.emitted('submit')).toEqual([['123']])
+  })
+
+  it('tocar el teclado o una casilla no mueve el foco', () => {
+    w = make(3)
+    for (const id of ['key-1', 'key-delete', 'submit', 'digit-0']) {
+      const ev = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
+      w.get(`[data-testid="${id}"]`).element.dispatchEvent(ev)
+      expect(ev.defaultPrevented).toBe(true)
+    }
+  })
+
+  it('pegar distribuye los dígitos desde la casilla activa', async () => {
+    w = make(4)
+    const ev = new Event('paste', { bubbles: true, cancelable: true }) as ClipboardEvent
+    Object.defineProperty(ev, 'clipboardData', { value: { getData: () => '12-34' } })
+    document.body.dispatchEvent(ev)
+    await nextTick()
+    expect(slots(w)).toEqual(['1', '2', '3', '4'])
+    expect(ev.defaultPrevented).toBe(true)
+
+    const empty = new Event('paste', { bubbles: true, cancelable: true }) as ClipboardEvent
+    Object.defineProperty(empty, 'clipboardData', { value: { getData: () => 'abc' } })
+    document.body.dispatchEvent(empty)
+    expect(empty.defaultPrevented).toBe(false)
+  })
+
+  it('deshabilitado (enviando), ignora la entrada', async () => {
+    w = make(3, true)
+    await tap(w, '12')
+    await key('3')
+    await w.get('[data-testid="key-delete"]').trigger('click')
+    await w.get('[data-testid="submit"]').trigger('click')
+    expect(slots(w)).toEqual(['', '', ''])
+    expect(w.emitted('submit')).toBeUndefined()
   })
 
   it('reset limpia y cambiar de nivel redimensiona', async () => {
-    const w = make(3)
-    await type(w, 0, '1')
+    w = make(3)
+    await tap(w, '1')
     ;(w.vm as unknown as { reset: () => void }).reset()
-    await w.vm.$nextTick()
-    expect(values(w)[0]).toBe('')
+    await nextTick()
+    expect(slots(w)).toEqual(['', '', ''])
+    expect(w.get('[data-testid="guess-spoken"]').text()).toBe('')
     await w.setProps({ level: 5 })
-    expect(w.findAll('input')).toHaveLength(5)
-    w.unmount()
+    expect(slots(w)).toHaveLength(5)
+  })
+
+  it('al desmontarse deja de escuchar el teclado', async () => {
+    const other = make(3)
+    other.unmount()
+    expect((await key('1')).defaultPrevented).toBe(false)
   })
 })

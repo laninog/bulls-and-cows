@@ -23,13 +23,15 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expectNoViolations(page)
     })
 
-    test('partida con intentos, con selectores y ganada', async ({ page }) => {
+    test('partida con intentos, intento a medias con aviso, y ganada', async ({ page }) => {
       await startGame(page, 4)
       const secret = await secretOfCurrentGame(page)
       await typeGuess(page, wrongGuessFor(secret))
       await expectNoViolations(page)
-      await page.getByTestId('stepper-toggle').click()
+      await page.keyboard.type('55')
+      await expect(page.getByTestId('guess-message')).toHaveText('No repitas dígitos.')
       await expectNoViolations(page)
+      await page.keyboard.press('Backspace')
       await typeGuess(page, secret)
       await expect(page.getByTestId('won')).toBeVisible()
       await expectNoViolations(page)
@@ -78,8 +80,8 @@ test.describe('solo teclado', () => {
     await page.keyboard.press('Enter')
     await page.waitForURL('**/play')
 
-    // Al llegar, el foco ya está en el primer dígito
-    await expect(page.getByTestId('digit-0')).toBeFocused()
+    // Al llegar, el foco está en el título de la vista; las teclas ya escriben
+    await expect(page.getByRole('heading', { level: 2 })).toBeFocused()
     const secret = await secretOfCurrentGame(page)
 
     // Intento fallido tecleado directamente; Enter envía
@@ -87,14 +89,21 @@ test.describe('solo teclado', () => {
     await page.keyboard.press('Enter')
     await expect(page.getByTestId('attempts').locator('li')).toHaveCount(1)
     await expect(page.getByTestId('announcer')).toHaveText(/^Intento 1: /)
-    await expect(page.getByTestId('digit-0')).toBeFocused()
 
-    // Intento ganador usando flechas arriba/abajo en lugar de teclear dígitos
-    for (let i = 0; i < 4; i++) {
-      const target = Number(secret[i])
-      for (let k = 0; k <= target; k++) await page.keyboard.press('ArrowUp') // vacío→0→…→target
-      if (i < 3) await page.keyboard.press('ArrowRight')
+    // Intento ganador con el teclado de la pantalla recorrido con Tab y activado con Enter:
+    // el foco no se pierde aunque la tecla pulsada pase a estar atenuada
+    await page.getByRole('button', { name: 'Abandonar' }).focus()
+    for (const d of secret) {
+      const key = page.getByTestId(`key-${d}`)
+      while (!(await key.evaluate((el) => el === document.activeElement)))
+        await page.keyboard.press('Tab')
+      await page.keyboard.press('Enter')
+      await expect(key).toBeFocused()
+      await expect(key).toHaveAttribute('aria-disabled', 'true')
+      await page.getByRole('button', { name: 'Abandonar' }).focus()
     }
+    await expect(page.getByTestId('guess-spoken')).toHaveText(secret.split('').join(', '))
+    await page.getByTestId('submit').focus()
     await page.keyboard.press('Enter')
     await expect(page.getByTestId('won')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Jugar otra vez' })).toBeFocused()

@@ -49,10 +49,10 @@ export const en: Messages = {
     announce: (ordinal, bulls, cows) =>
       `Guess ${ordinal}: ${n(bulls, 'bull', 'bulls')} and ${n(cows, 'cow', 'cows')}.`,
     guessLegend: 'Your guess',
-    digit: (i, total) => `Digit ${i} of ${total}`,
-    increment: (i) => `Increase digit ${i}`,
-    decrement: (i) => `Decrease digit ${i}`,
-    stepperMode: '+ / − buttons',
+    slot: (i, total, digit) => `Digit ${i} of ${total}: ${digit === '' ? 'empty' : digit}`,
+    composed: (digits) => digits.map((d) => (d === '' ? 'empty' : d)).join(', '),
+    keypad: 'Number keypad',
+    delete: 'Delete',
     submit: 'Play',
     abandon: 'Give up',
     invalid: {
@@ -103,10 +103,10 @@ export const en: Messages = {
       'Easy (3 digits), Medium (4), Advanced (5) and Expert (6). There is no limit on guesses or time, but your history keeps both.',
     inputTitle: 'Entering a guess',
     inputItems: [
-      'Type the digits: the cursor moves to the next box by itself.',
-      'Arrow keys ↑ and ↓ change the digit; ← and → move between boxes.',
-      'Enter plays your guess.',
-      'Prefer tapping? Turn on the + / − buttons in the game or in Settings.',
+      'Tap the digits on the on-screen keypad: each one fills the next empty box.',
+      'Tap a box to change that digit; ⌫ deletes.',
+      "Digits already in your guess are dimmed: they can't be repeated.",
+      'With a physical keyboard: type the digits, ← and → move between boxes, Backspace deletes and Enter plays.',
     ],
     cta: 'Start playing',
   },
@@ -118,11 +118,6 @@ export const en: Messages = {
   settings: {
     title: 'Settings',
     languageLegend: 'Language',
-    inputLegend: 'Input mode',
-    inputKeyboard: 'Keyboard',
-    inputKeyboardHint: 'Type the digits directly.',
-    inputStepper: '+ / − buttons',
-    inputStepperHint: 'Tap to step each digit up or down.',
     themeNote: 'Light or dark theme follows your device settings.',
   },
 }

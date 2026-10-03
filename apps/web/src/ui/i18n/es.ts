@@ -51,10 +51,11 @@ export const es = {
     announce: (ordinal: number, bulls: number, cows: number) =>
       `Intento ${ordinal}: ${n(bulls, 'bull', 'bulls')} y ${n(cows, 'cow', 'cows')}.`,
     guessLegend: 'Tu intento',
-    digit: (i: number, total: number) => `Dígito ${i} de ${total}`,
-    increment: (i: number) => `Aumentar dígito ${i}`,
-    decrement: (i: number) => `Disminuir dígito ${i}`,
-    stepperMode: 'Selectores + / −',
+    slot: (i: number, total: number, digit: string) =>
+      `Dígito ${i} de ${total}: ${digit === '' ? 'vacío' : digit}`,
+    composed: (digits: readonly string[]) => digits.map((d) => (d === '' ? 'vacío' : d)).join(', '),
+    keypad: 'Teclado numérico',
+    delete: 'Borrar',
     submit: 'Jugar',
     abandon: 'Abandonar',
     invalid: {
@@ -110,10 +111,10 @@ export const es = {
       'Fácil (3 dígitos), Medio (4), Avanzado (5) y Experto (6). No hay límite de intentos ni de tiempo, pero el historial guarda ambos.',
     inputTitle: 'Cómo escribir un intento',
     inputItems: [
-      'Escribe los dígitos: el cursor avanza solo a la siguiente casilla.',
-      'Las flechas ↑ y ↓ suben o bajan el dígito; ← y → cambian de casilla.',
-      'Enter juega el intento.',
-      'Si prefieres pulsar, activa los selectores + / − en la partida o en Ajustes.',
+      'Pulsa los dígitos en el teclado de la pantalla: cada uno ocupa la siguiente casilla libre.',
+      'Toca una casilla para cambiar ese dígito; ⌫ borra.',
+      'Los dígitos que ya están en el intento se atenúan: no se pueden repetir.',
+      'Con teclado físico: escribe los dígitos, ← y → cambian de casilla, Retroceso borra y Enter juega.',
     ],
     cta: 'Empezar a jugar',
   },
@@ -125,11 +126,6 @@ export const es = {
   settings: {
     title: 'Ajustes',
     languageLegend: 'Idioma',
-    inputLegend: 'Modo de entrada',
-    inputKeyboard: 'Teclado',
-    inputKeyboardHint: 'Escribe los dígitos directamente.',
-    inputStepper: 'Selectores + / −',
-    inputStepperHint: 'Pulsa para subir o bajar cada dígito.',
     themeNote: 'El tema claro u oscuro sigue la configuración de tu dispositivo.',
   },
 }

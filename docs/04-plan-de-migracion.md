@@ -120,8 +120,8 @@ La fase más grande y la que entrega valor público. Aplicación completa contra
 - Router con *guards*: `/game/:level` inaccesible sin partida creada.
 - Pantallas: inicio, configuración, juego, puntuación, **reglas del juego**,
   ajustes.
-- **Entrada numérica directa** (teclado físico y numérico del sistema) con los
-  selectores `+/−` como modo táctil alternativo.
+- **Entrada numérica directa** con teclado numérico propio en pantalla y teclado
+  físico (D-30, que sustituye a los selectores `+/−` de D-06).
 - Sistema de diseño propio: *custom properties*, conservando `#3f51b5`.
 - Iconos como sprite SVG autohospedado; tipografía autohospedada.
 - i18n `es` + `en`.
@@ -154,6 +154,7 @@ DT-17, DT-18, SEC-06.
 | | *Corrección asociada* | `crypto.randomUUID` no existe fuera de contexto seguro (acceso por IP de la LAN): UUID v4 desde `getRandomValues`. Scripts `dev:lan` / `preview:lan`. |
 | **F2.3** Contenido | i18n `es`/`en`, reglas, ajustes | **Entregado 2026-10-02.** i18n propio tipado (D-25): idioma detectado del navegador, cambio sin recarga desde Ajustes, persistido, `lang` del documento y títulos de vista en el idioma activo; plurales y fechas con `Intl`. Pantalla de reglas con ejemplo calculado por el motor real. Pantalla de ajustes (idioma, modo de entrada). 129 tests unitarios (incluida paridad de forma entre catálogos); 21 escenarios e2e ×2 dispositivos, con axe sin violaciones en reglas y ajustes en ambos idiomas y temas. Además, SCA en CI (D-26). |
 | **F2.4** PWA y publicación | Manifiesto, service worker, despliegue a Cloudflare desde GitHub | **Hecho 2026-10-03: en producción** en `https://bulls-and-cows.gameslab.workers.dev`. Incidencias del primer despliegue, corregidas en la CI: `cmd | tee` sin `pipefail` ocultaba los fallos de Wrangler (ahora `shell: bash` global y los bloques `[ERROR]` de Wrangler se convierten en anotaciones del run); la comprobación posterior leía la versión anterior mientras la nueva se propagaba (ahora sondea `/api/health` hasta 2 min hasta ver el commit desplegado). Worker único con la SPA como assets y la API en `/api/*` (D-27). PWA con `vite-plugin-pwa`: manifiesto instalable (192/512/maskable/apple), precache del app shell, fallback de navegación offline que excluye `/api`, aviso de actualización accesible en vez de recarga forzosa. Despliegue a producción desde `main` tras `check` + `e2e`, con comprobación de versión; previsualización por PR (D-28). Source maps excluidos de la publicación. e2e ahora contra el Worker real (miniflare): 24 escenarios ×2 dispositivos, incluida una **partida completa sin conexión**. |
+| **F2.5** Ajuste tras prueba en móvil | Teclado numérico propio; retirada de los selectores `+/−` y del modo de entrada (D-30) | **Construido 2026-10-03.** Sin campos de texto en la partida; dígitos usados atenuados; tocar una casilla la selecciona; teclado físico global. 131 tests unitarios, 48 e2e (incluye una partida ganada solo con el teclado de la pantalla y una completa solo con teclado físico), cero violaciones axe. |
 | | *CI* | **GitHub Actions** (D-24). Se probó Bitbucket Pipelines y se revirtió el mismo día (D-22, revocada). |
 
 ---

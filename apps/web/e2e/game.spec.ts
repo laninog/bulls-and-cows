@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { secretOfCurrentGame, startGame, typeGuess, wrongGuessFor } from './helpers'
+import { secretOfCurrentGame, startGame, tapGuess, typeGuess, wrongGuessFor } from './helpers'
 
 test.describe('partida completa en modo invitado', () => {
   test('nivel 3: inválido, fallido, ganador, historial', async ({ page }) => {
@@ -11,15 +11,19 @@ test.describe('partida completa en modo invitado', () => {
     const secret = await secretOfCurrentGame(page)
     expect(secret).toMatch(/^[0-9]{3}$/)
 
-    // Repetidos: se avisa y no se registra
-    await typeGuess(page, '112')
+    // Repetidos: no se aceptan y se avisa; incompleto: no se registra
+    await typeGuess(page, '11')
+    await expect(page.getByTestId('guess-message')).toHaveText('Completa todos los dígitos.')
+    await expect(page.getByTestId('digit-1')).toHaveText('')
+    await page.keyboard.type('1')
     await expect(page.getByTestId('guess-message')).toHaveText('No repitas dígitos.')
     await expect(page.getByTestId('attempts')).toHaveCount(0)
-    for (let i = 0; i < 3; i++) await page.keyboard.press('Backspace')
+    await page.keyboard.press('Backspace')
 
     await typeGuess(page, wrongGuessFor(secret))
     await expect(page.getByTestId('attempts').locator('li')).toHaveCount(1)
-    await expect(page.getByTestId('digit-0')).toBeFocused()
+    await expect(page.getByTestId('digit-0')).toHaveText('')
+    await expect(page.getByTestId('digit-0')).toHaveAttribute('aria-current', 'true')
 
     await typeGuess(page, secret)
     await expect(page.getByTestId('won').getByRole('heading')).toHaveText(
@@ -54,23 +58,39 @@ test.describe('partida completa en modo invitado', () => {
     )
   })
 
-  test('modo selectores +/−: se compone un intento solo con los botones', async ({ page }) => {
-    await startGame(page, 3)
-    await page.getByTestId('stepper-toggle').click()
-    await expect(page.getByTestId('stepper-toggle')).toHaveAttribute('aria-pressed', 'true')
-    // 1, 2, 3 pulsando "+" (desde vacío: +1 → 0)
-    for (const [i, presses] of [
-      [0, 2],
-      [1, 3],
-      [2, 4],
-    ] as const) {
-      for (let k = 0; k < presses; k++) await page.getByTestId(`inc-${i}`).click()
-    }
+  test('teclado de la pantalla: sin teclado del sistema, usados atenuados, corregir y jugar', async ({
+    page,
+  }) => {
+    await startGame(page, 4)
+    // Ningún campo de texto: el teclado del móvil no puede abrirse
+    await expect(page.locator('input, textarea, [contenteditable]')).toHaveCount(0)
+
+    const keypad = page.getByRole('group', { name: 'Teclado numérico' })
+    await keypad.getByRole('button', { name: '1', exact: true }).click()
+    await keypad.getByRole('button', { name: '2', exact: true }).click()
+    await expect(page.getByTestId('key-1')).toHaveAttribute('aria-disabled', 'true')
+    // Atenuada pero pulsable: explica por qué no se acepta
+    await page.getByTestId('key-1').click({ force: true })
+    await expect(page.getByTestId('guess-message')).toHaveText('No repitas dígitos.')
+
+    // Corregir el primer dígito tocando su casilla; borrar el último
+    await page.getByTestId('digit-0').click()
+    await page.getByTestId('key-9').click()
+    await page.getByTestId('key-3').click()
+    await page.getByTestId('key-4').click()
+    await page.getByRole('button', { name: 'Borrar' }).click()
+    await page.getByTestId('key-5').click()
+    await expect(page.getByTestId('digits')).toHaveText(/9\s*2\s*3\s*5/)
+
     await page.getByRole('button', { name: 'Jugar' }).click()
-    await expect(page.getByTestId('attempts').locator('li').first()).toContainText('1 2 3')
-    // La preferencia persiste
-    await page.reload()
-    await expect(page.getByTestId('stepper-toggle')).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByTestId('attempts').locator('li').first()).toContainText('9 2 3 5')
+    await expect(page.getByTestId('key-9')).not.toHaveAttribute('aria-disabled', 'true')
+  })
+
+  test('ganar solo con el teclado de la pantalla', async ({ page }) => {
+    await startGame(page, 3)
+    await tapGuess(page, await secretOfCurrentGame(page))
+    await expect(page.getByTestId('won')).toBeVisible()
   })
 })
 

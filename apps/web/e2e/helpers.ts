@@ -36,8 +36,14 @@ export async function startGame(page: Page, level: 3 | 4 | 5 | 6 = 3) {
   await page.waitForURL('**/play')
 }
 
+/** Intento con el teclado físico: la partida escucha las teclas sin necesidad de foco. */
 export async function typeGuess(page: Page, guess: string) {
-  await page.getByTestId('digit-0').focus()
   await page.keyboard.type(guess)
   await page.keyboard.press('Enter')
+}
+
+/** Intento con el teclado de la pantalla, como en el móvil. */
+export async function tapGuess(page: Page, guess: string) {
+  for (const d of guess) await page.getByTestId(`key-${d}`).click()
+  await page.getByTestId('submit').click()
 }

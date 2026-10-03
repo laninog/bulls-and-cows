@@ -30,40 +30,6 @@ const t = useT()
       </label>
     </fieldset>
 
-    <fieldset class="choices">
-      <legend>{{ t.settings.inputLegend }}</legend>
-      <label class="choice">
-        <input
-          type="radio"
-          name="input-mode"
-          class="choice__input"
-          value="keyboard"
-          :checked="prefs.inputMode === 'keyboard'"
-          data-testid="input-keyboard"
-          @change="prefs.setInputMode('keyboard')"
-        />
-        <span class="choice__body">
-          <span class="choice__title">{{ t.settings.inputKeyboard }}</span>
-          <span class="choice__hint">{{ t.settings.inputKeyboardHint }}</span>
-        </span>
-      </label>
-      <label class="choice">
-        <input
-          type="radio"
-          name="input-mode"
-          class="choice__input"
-          value="stepper"
-          :checked="prefs.inputMode === 'stepper'"
-          data-testid="input-stepper"
-          @change="prefs.setInputMode('stepper')"
-        />
-        <span class="choice__body">
-          <span class="choice__title">{{ t.settings.inputStepper }}</span>
-          <span class="choice__hint">{{ t.settings.inputStepperHint }}</span>
-        </span>
-      </label>
-    </fieldset>
-
     <p class="muted settings__note">{{ t.settings.themeNote }}</p>
   </section>
 </template>

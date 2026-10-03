@@ -69,7 +69,6 @@ test('sin conexión: arranca, navega entre vistas y se juega una partida casual 
       r.onerror = () => rej(r.error)
     })
   })
-  await page.getByTestId('digit-0').focus()
   await page.keyboard.type(secret)
   await page.keyboard.press('Enter')
   await expect(page.getByTestId('won')).toBeVisible()

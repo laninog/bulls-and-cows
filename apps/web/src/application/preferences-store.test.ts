@@ -1,6 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { nextTick } from 'vue'
 import { usePreferencesStore } from './preferences-store'
 
 const setNavigatorLanguages = (langs: string[]) =>
@@ -12,25 +11,6 @@ describe('preferences store', () => {
     setActivePinia(createPinia())
   })
   afterEach(() => setNavigatorLanguages(['es-ES', 'es']))
-
-  it('por defecto, entrada por teclado', () => {
-    expect(usePreferencesStore().inputMode).toBe('keyboard')
-  })
-
-  it('persiste el modo de entrada y lo recupera en una nueva sesión', async () => {
-    usePreferencesStore().toggleInputMode()
-    await nextTick()
-    expect(localStorage.getItem('bnc:input-mode')).toBe('stepper')
-    setActivePinia(createPinia())
-    expect(usePreferencesStore().inputMode).toBe('stepper')
-    usePreferencesStore().setInputMode('keyboard')
-    expect(usePreferencesStore().inputMode).toBe('keyboard')
-  })
-
-  it('un modo desconocido en almacenamiento cae a teclado', () => {
-    localStorage.setItem('bnc:input-mode', 'raro')
-    expect(usePreferencesStore().inputMode).toBe('keyboard')
-  })
 
   it('sin preferencia guardada, el idioma se detecta del navegador y no se persiste', () => {
     setNavigatorLanguages(['en-GB'])

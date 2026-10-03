@@ -434,7 +434,7 @@ Para que quede explícito qué es corrección y qué es alcance nuevo:
 | Nuevo | Origen |
 |---|---|
 | Modo invitado sin cuenta (adaptador local) | Consecuencia del diseño, no pedido |
-| Entrada numérica directa por teclado | D-06 |
+| Entrada numérica directa: teclado numérico propio y teclado físico | D-06, D-30 |
 | Pantalla de reglas del juego | BF-11 |
 | Cierre de sesión y borrado de cuenta | BF-09, SEC-10 |
 | Interfaz en español e inglés | D-04 |

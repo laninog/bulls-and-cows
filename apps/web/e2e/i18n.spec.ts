@@ -48,8 +48,7 @@ test('cambiar de idioma en Ajustes: inmediato, sin recargar, y persistente', asy
   await page.getByRole('button', { name: 'Start' }).click()
   await page.waitForURL('**/play')
   await expect(page.getByRole('heading', { level: 2 })).toContainText('Level 3')
-  await page.getByTestId('digit-0').focus()
-  await page.keyboard.type('112')
+  await page.keyboard.type('11')
   await expect(page.getByTestId('guess-message')).toHaveText("Don't repeat digits.")
 })
 
@@ -64,14 +63,4 @@ test('reglas: accesibles desde inicio, con el ejemplo y vuelta a jugar', async (
   await expect(examples.nth(2)).toContainText('3 bulls, 0 cows')
   await page.getByRole('link', { name: 'Empezar a jugar' }).click()
   await expect(page).toHaveURL('/')
-})
-
-test('el modo de entrada elegido en Ajustes se aplica en la partida', async ({ page }) => {
-  await page.goto('/settings')
-  await page.getByTestId('input-stepper').check()
-  await page.getByRole('link', { name: 'Bulls and Cows' }).click()
-  await page.getByRole('button', { name: 'Empezar' }).click()
-  await page.waitForURL('**/play')
-  await expect(page.getByTestId('stepper-toggle')).toHaveAttribute('aria-pressed', 'true')
-  await expect(page.getByTestId('inc-0')).toBeVisible()
 })

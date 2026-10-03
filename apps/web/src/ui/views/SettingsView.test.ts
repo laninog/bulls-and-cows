@@ -22,14 +22,4 @@ describe('SettingsView', () => {
     expect(w.get('h2').text()).toBe('Settings')
     expect(localStorage.getItem('bnc:locale')).toBe('en')
   })
-
-  it('cambia el modo de entrada', async () => {
-    const { router } = setupView()
-    const w = mount(SettingsView, { global: { plugins: [router] } })
-    expect((w.get('[data-testid="input-keyboard"]').element as HTMLInputElement).checked).toBe(true)
-    await w.get('[data-testid="input-stepper"]').setValue(true)
-    expect(usePreferencesStore().inputMode).toBe('stepper')
-    await w.get('[data-testid="input-keyboard"]').setValue(true)
-    expect(usePreferencesStore().inputMode).toBe('keyboard')
-  })
 })

@@ -5,12 +5,8 @@ import { setupView } from '../test-utils'
 import PlayView from './PlayView.vue'
 
 async function typeAll(w: ReturnType<typeof mount>, guess: string) {
-  for (let i = 0; i < guess.length; i++) {
-    const el = w.get(`[data-testid="digit-${i}"]`)
-    ;(el.element as HTMLInputElement).value = guess[i]!
-    await el.trigger('input')
-  }
-  await w.get('form').trigger('submit')
+  for (const d of guess) await w.get(`[data-testid="key-${d}"]`).trigger('click')
+  await w.get('[data-testid="submit"]').trigger('click')
   await flushPromises()
 }
 
@@ -38,7 +34,7 @@ describe('PlayView', () => {
 
     await typeAll(w, secret)
     expect(w.get('[data-testid="won"] h3').text()).toBe('¡Has ganado en 2 intentos!')
-    expect(w.find('form').exists()).toBe(false)
+    expect(w.find('[data-testid="keypad"]').exists()).toBe(false)
     w.unmount()
   })
 
@@ -95,14 +91,17 @@ describe('PlayView · accesibilidad', () => {
     w.unmount()
   })
 
-  it('tras un intento fallido el foco vuelve al primer dígito', async () => {
+  it('tras un intento fallido el intento se vacía y el foco se queda en la tecla de jugar', async () => {
     const env = setupView()
     const game = useGameStore()
     await game.start(3)
     const secret = await env.secretOf(game.current!.id)
     const w = mount(PlayView, { global: { plugins: [env.router] }, attachTo: document.body })
+    const submit = w.get<HTMLButtonElement>('[data-testid="submit"]').element
+    submit.focus()
     await typeAll(w, secret === '012' ? '345' : '012')
-    expect(document.activeElement).toBe(w.get('[data-testid="digit-0"]').element)
+    expect(w.findAll('[data-testid^="digit-"]').map((s) => s.text())).toEqual(['', '', ''])
+    expect(document.activeElement).toBe(submit)
     w.unmount()
   })
 })
