@@ -1,8 +1,15 @@
-# Cabeceras de los assets estáticos (Workers static assets). F5 añade la CSP (SEC-07).
+# Cabeceras de los assets estáticos (Workers static assets) — SEC-07.
+# Deben coincidir con APP_SECURITY_HEADERS de apps/api/src/security-headers.ts:
+# lo comprueba apps/api/src/security-headers.test.ts.
 /*
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
 
 # El service worker y el manifiesto deben revalidarse siempre para que las actualizaciones lleguen.
 /sw.js

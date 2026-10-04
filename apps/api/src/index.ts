@@ -1,4 +1,5 @@
 import type { HealthResponse } from '@bnc/contracts'
+import { API_SECURITY_HEADERS } from './security-headers'
 
 export interface Env {
   APP_VERSION: string
@@ -9,7 +10,7 @@ export interface Env {
 const json = (body: unknown, init?: ResponseInit) =>
   Response.json(body, {
     ...init,
-    headers: { 'Cache-Control': 'no-store', ...(init?.headers ?? {}) },
+    headers: { 'Cache-Control': 'no-store', ...API_SECURITY_HEADERS, ...(init?.headers ?? {}) },
   })
 
 async function handleApi(url: URL, env: Env): Promise<Response> {

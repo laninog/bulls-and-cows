@@ -1,0 +1,15 @@
+# Actualizaciones de las acciones de GitHub Actions (fijadas por SHA en ci.yml).
+# Las dependencias npm se gestionarán con Renovate en F5; las alertas de seguridad
+# de Dependabot siguen activas para todo el repositorio.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci

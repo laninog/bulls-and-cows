@@ -231,6 +231,13 @@ agotamiento de cuota de D-08.
 
 ### F5 — Endurecimiento y salida a producción
 
+> **Adelantado 2026-10-04 (D-32):** cabeceras de seguridad con CSP sin `unsafe-*`,
+> HSTS, COOP/CORP y `X-Frame-Options` en la SPA y la API, verificadas en e2e contra el
+> Worker real (incluido que la CSP bloquea scripts y estilos inyectados y que una
+> partida completa no provoca ninguna violación). Acciones de CI fijadas por SHA y
+> actualizadas a Node 24; Dependabot para las acciones. Pendiente de F5: comprobar la
+> calificación en `securityheaders.com` tras el despliegue y el resto de entregables.
+
 **Entregables**
 
 - Cabeceras versionadas: CSP, `X-Content-Type-Options`, `Referrer-Policy`,

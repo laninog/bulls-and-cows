@@ -71,3 +71,8 @@ error aparece como anotación en el resumen del run.
 - Vulnerabilidades altas o críticas en dependencias rompen la build.
 - Contraste WCAG AA de la paleta y cero violaciones axe en todas las pantallas.
 - Los _source maps_ nunca se publican (`.assetsignore`).
+- Cabeceras de seguridad con CSP sin `unsafe-*` (`apps/api/src/security-headers.ts`,
+  repetidas en `_headers`); los tests fallan si ambas fuentes divergen o si la
+  aplicación provoca una sola violación de la CSP.
+- Acciones de GitHub fijadas por SHA de commit y runner fijado (`ubuntu-24.04`);
+  Dependabot propone las actualizaciones de las acciones.
